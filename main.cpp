@@ -8,7 +8,7 @@
 using namespace std;
 
 /**
- * Imprime las opciones de menu
+ * Imprime todas las opciones de menu
  */
 void generaInterfaz(){
     cout << "\nElija una Opción: " << endl;
