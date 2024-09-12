@@ -3,12 +3,19 @@
 #include <string.h>
 #include <dirent.h>
 #include <ctype.h>
+#include <iostream>
+#include <unordered_map>
+#include <algorithm>
+#include <fstream>
 #include <sys/stat.h>
 using namespace std;
 
-bool existeDirectorio(const char* path) {
+#define MAX_LONGITUD_PALABRA 100
+#define MAX_LONGITUD_RUTA 512
+
+bool existeDirectorio(const char* ruta) {
     struct stat info;
-    if (stat(path, &info) != 0) {
+    if (stat(ruta, &info) != 0) {
         return false;
     } else if (info.st_mode & S_IFDIR) {
         return true;
@@ -17,114 +24,79 @@ bool existeDirectorio(const char* path) {
     }
 }
 
-#define MAX_WORD_LEN 100
-#define MAX_PATH_LEN 512
-
-// Estructura para almacenar las palabras y su conteo
-typedef struct {
-    char word[MAX_WORD_LEN];
-    int count;
-} WordCount;
-
-int isValidExtension(const char* filename, const char* extension) {
-    const char *dot = strrchr(filename, '.');
-    if (!dot || dot == filename) return 0;
-    return strcmp(dot + 1, extension) == 0;
+int esExtensionValida(const char* nombreArchivo, const char* extension) {
+    const char *punto = strrchr(nombreArchivo, '.');
+    if (!punto || punto == nombreArchivo) return 0;
+    return strcmp(punto + 1, extension) == 0;
 }
 
-void processFile(const char* inputFile, const char* outputFile) {
-    FILE *in = fopen(inputFile, "r");
-    if (!in) {
-        printf("No se pudo abrir el archivo de entrada: %s\n", inputFile);
+void procesarArchivo(const char* archivoEntrada, const char* archivoSalida) {
+    ifstream entrada(archivoEntrada);
+    if (!entrada) {
+        cerr << "No se pudo abrir el archivo de entrada: " << archivoEntrada << endl;
         return;
     }
 
-    // Para almacenar las palabras y sus cantidades
-    WordCount words[10000]; // Esto es solo un tamaño arbitrario, se puede mejorar
-    int wordCount = 0;
-    
-    char word[MAX_WORD_LEN];
-    while (fscanf(in, "%s", word) != EOF) {
-        // Convertir la palabra a minúsculas
-        for (int i = 0; word[i]; i++) {
-            word[i] = tolower(word[i]);
-        }
+    unordered_map<string, int> mapaPalabras;
 
-        // Buscar si la palabra ya está registrada
-        int found = 0;
-        for (int i = 0; i < wordCount; i++) {
-            if (strcmp(words[i].word, word) == 0) {
-                words[i].count++;
-                found = 1;
-                break;
-            }
-        }
-
-        // Si no se encontró, agregarla
-        if (!found) {
-            strcpy(words[wordCount].word, word);
-            words[wordCount].count = 1;
-            wordCount++;
-        }
+    string palabra;
+    while (entrada >> palabra) {
+        transform(palabra.begin(), palabra.end(), palabra.begin(), ::tolower);
+        mapaPalabras[palabra]++;
     }
-    fclose(in);
+    entrada.close();
 
-    // Crear el archivo de salida
-    FILE *out = fopen(outputFile, "w");
-    if (!out) {
-        printf("No se pudo crear el archivo de salida: %s\n", outputFile);
+    ofstream salida(archivoSalida);
+    if (!salida) {
+        cerr << "No se pudo crear el archivo de salida: " << archivoSalida << endl;
         return;
     }
 
-    // Escribir las palabras y sus cantidades en el archivo de salida
-    for (int i = 0; i < wordCount; i++) {
-        fprintf(out, "%s; %d\n", words[i].word, words[i].count);
+    for (const auto& entrada : mapaPalabras) {
+        salida << entrada.first << "; " << entrada.second << endl;
     }
-    fclose(out);
+    salida.close();
 
-    // Mensaje final con el path y la cantidad de palabras distintas
-    printf("archivo %s, %d palabras distintas\n", outputFile, wordCount);
+    cout << "Archivo " << archivoSalida << ", " << mapaPalabras.size() << " palabras distintas" << endl;
 }
 
-bool procesarDatos(char* extension, char* pathProcesar, char* pathRespuesta) {
-    struct dirent *entry;
-    DIR *dp = opendir(pathProcesar);
+bool procesarDatos(char* extension, char* rutaProcesar, char* rutaRespuesta) {
+    struct dirent *entrada;
+    DIR *directorio = opendir(rutaProcesar);
 
-    if (dp == NULL) {
-        printf("No se pudo abrir el directorio: %s\n", pathProcesar);
-        return false;
+    if (directorio == NULL) {
+        printf("No se pudo abrir el directorio: %s\n", rutaProcesar);
+        return true;
     }
 
-    while ((entry = readdir(dp))) {
-        if (entry->d_type == DT_REG && isValidExtension(entry->d_name, extension)) {
-            char inputFile[MAX_PATH_LEN];
-            char outputFile[MAX_PATH_LEN];
+    while ((entrada = readdir(directorio))) {
+        if (entrada->d_type == DT_REG && esExtensionValida(entrada->d_name, extension)) {
+            char archivoEntrada[MAX_LONGITUD_RUTA];
+            char archivoSalida[MAX_LONGITUD_RUTA];
 
-            // Construir los paths completos
-            snprintf(inputFile, sizeof(inputFile), "%s/%s", pathProcesar, entry->d_name);
-            snprintf(outputFile, sizeof(outputFile), "%s/%s", pathRespuesta, entry->d_name);
+            snprintf(archivoEntrada, sizeof(archivoEntrada), "%s/%s", rutaProcesar, entrada->d_name);
+            snprintf(archivoSalida, sizeof(archivoSalida), "%s/%s", rutaRespuesta, entrada->d_name);
 
-            // Procesar el archivo
-            processFile(inputFile, outputFile);
+            procesarArchivo(archivoEntrada, archivoSalida);
         }
     }
 
-    closedir(dp);
-    return true;
+    closedir(directorio);
+    return false;
 }
 
-bool validarDatos(char* extension, char* pathProcesar, char* pathRespuesta) {
-    if (!extension || !pathProcesar || !pathRespuesta) {
+bool validarDatos(char* extension, char* rutaProcesar, char* rutaRespuesta) {
+    if (!extension || !rutaProcesar || !rutaRespuesta) {
         cout << "\033[31mError: Hacen falta datos por ingresar.\033[0m" << endl;
         return false;
     }
 
-    if (!existeDirectorio(pathProcesar)) {
+    if (!existeDirectorio(rutaProcesar)) {
         cout << "\033[31mError: La carpeta a procesar no existe.\033[0m" << endl;
         return false;
     }
 
-    if (!existeDirectorio(pathRespuesta)) {
+    if (!existeDirectorio(rutaRespuesta)) {
         cout << "\033[31mError: La carpeta de respuesta no existe.\033[0m" << endl;
         return false;
     }
