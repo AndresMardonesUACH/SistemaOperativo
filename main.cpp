@@ -11,7 +11,7 @@ using namespace std;
 
 /**
  * Imprime las opciones de menu
- */
+*/
 void generaInterfaz(int rol){
     cout << "\nElija una Opción: " << endl;
     cout << "0. Salir " << endl;
