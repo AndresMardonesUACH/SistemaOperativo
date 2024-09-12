@@ -1,2 +1,2 @@
 all: 
-	g++ -I include -o main main.cpp 
+	g++ -I include -o main main.cpp
