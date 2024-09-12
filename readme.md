@@ -40,12 +40,12 @@ Luego se desplegará el siguiente menú (si usuario y contraseña son correctos)
 Bienvenido user, sesión iniciada correctamente
 
 Elija una Opción:
+0. Salir
 1. Detección de Palíndromos
 2. Conteo de vocales
 3. Conteo de letras
 4. Promedio y sumatoria de un vector
 5. Cálculo de f(x)
-6. Salir
 Opción:
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
