@@ -46,6 +46,7 @@ Elija una Opción:
 3. Conteo de letras
 4. Promedio y sumatoria de un vector
 5. Cálculo de f(x)
+6. Conteo de palabras
 Opción:
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
