@@ -5,19 +5,25 @@
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
 #include "funcionesLogin.h"
+#include "funcionesAdmin.h"
 using namespace std;
 
 /**
- * Imprime todas las opciones de menu
+ * Imprime las opciones de menu
  */
-void generaInterfaz(){
+void generaInterfaz(int rol){
     cout << "\nElija una Opción: " << endl;
+    cout << "0. Salir " << endl;
     cout << "1. Detección de Palíndromos" << endl;
     cout << "2. Conteo de vocales" << endl;
     cout << "3. Conteo de letras" << endl;
     cout << "4. Promedio y sumatoria de un vector" << endl;
     cout << "5. Cálculo de f(x) " << endl;
-    cout << "6. Salir " << endl;
+    if(rol == 0){
+        cout << "6. Ingresar Usuarios" << endl;
+        cout << "7. Listar Usuarios" << endl;
+        cout << "8. Eliminar Usuarios " << endl;
+    }
 }
 
 
@@ -75,18 +81,24 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-    if (!validaLogin(usuario, contrasena)){
+    int rol = validaLogin(usuario, contrasena);
+    if (rol == -1){
         exit(EXIT_FAILURE);
     }
 
     system("clear");
-    cout << "\nBienvenido " << usuario << ", sesión iniciada correctamente" << endl;
+    cout << "SISTEMA MENÚ" << " (PID = " << getpid() << ")" << endl;
+    cout << "Nombre de Usuario: " << usuario << endl;
+    if(rol == 0){
+        cout << "Rol: Admin"<< endl;
+    }
+    else cout << "Rol: Genérico"<< endl;
 
     // Se genera el menú y se pide el input de una opción
     // Dependiendo de la opción ingresada, se ejecuta la función correspondiente
     char opcion;
     do{
-        generaInterfaz();
+        generaInterfaz(rol);
         cout << "Opción: ";
         cin >> opcion;
         if(isdigit(opcion)){
@@ -110,6 +122,18 @@ int main(int argc, char* argv[]){
                 calculaFuncion(numero);
                 break;
             case '6':
+                if(rol == 0) ingresarUsuario();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case '7':
+                if(rol == 0) listarUsuarios();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case '8':
+                if(rol == 0) eliminarUsuario();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case '0':
                 cout << "Ha salido del programa exitosamente" << endl;
                 break;
             default:
@@ -123,7 +147,7 @@ int main(int argc, char* argv[]){
             cout << "Debe ingresar un número, intente de nuevo" << endl;
         }
         cout << "--------------------------------------------------------------" << endl;
-    } while (opcion != '6');
+    } while (opcion != '0');
 
 
     exit(EXIT_SUCCESS);
