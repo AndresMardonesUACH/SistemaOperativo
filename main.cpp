@@ -95,7 +95,7 @@ int main(int argc, char* argv[]){
     else cout << "Rol: Genérico"<< endl;
 
     // Se genera el menú y se pide el input de una opción
-    // Dependiendo de la opción ingresada, se ejecuta la función correspondiente
+    // Dependiendo de la opción ingresada, se ejecuta la función correspondiente.
     char opcion;
     do{
         generaInterfaz(rol);
