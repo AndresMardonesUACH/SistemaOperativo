@@ -1,0 +1,3 @@
+usuario;contrasena1;0
+Andres;123445;0
+asd;asdasd;1

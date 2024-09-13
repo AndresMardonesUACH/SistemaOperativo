@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
+#include <sys/wait.h>
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
 #include "funcionesLogin.h"
@@ -18,11 +19,12 @@ void generaInterfaz(int rol){
     cout << "2. Conteo de vocales" << endl;
     cout << "3. Conteo de letras" << endl;
     cout << "4. Promedio y sumatoria de un vector" << endl;
-    cout << "5. Cálculo de f(x) " << endl;
+    cout << "5. Cálculo de f(x)" << endl;
+    cout << "6. Conteo de palabras" << endl;
     if(rol == 0){
-        cout << "6. Ingresar Usuarios" << endl;
-        cout << "7. Listar Usuarios" << endl;
-        cout << "8. Eliminar Usuarios " << endl;
+        cout << "7. Ingresar Usuarios" << endl;
+        cout << "8. Listar Usuarios" << endl;
+        cout << "9. Eliminar Usuarios " << endl;
     }
 }
 
@@ -86,23 +88,29 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-    system("clear");
-    cout << "SISTEMA MENÚ" << " (PID = " << getpid() << ")" << endl;
-    cout << "Nombre de Usuario: " << usuario << endl;
-    if(rol == 0){
-        cout << "Rol: Admin"<< endl;
-    }
-    else cout << "Rol: Genérico"<< endl;
-
     // Se genera el menú y se pide el input de una opción
-    // Dependiendo de la opción ingresada, se ejecuta la función correspondiente.
+    // Dependiendo de la opción ingresada, se ejecuta la función correspondiente
     char opcion;
+    system("clear");
+    cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl;
+    cout << "Nombre de Usuario: " << usuario << endl;
+    if(rol == 0) cout << "Rol: Admin" << endl;
+    else cout << "Rol: Genérico" << endl;
     do{
+
         generaInterfaz(rol);
+        
         cout << "Opción: ";
         cin >> opcion;
+
+        pid_t pid;
         if(isdigit(opcion)){
             system("clear");
+            cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl;
+            cout << "Nombre de Usuario: " << usuario << endl;
+            if(rol == 0) cout << "Rol: Admin" << endl;
+            else cout << "Rol: Genérico" << endl;
+
             cout << "--------------------------------------------------------------";
             cout << "\nOpción elegida: " << opcion << endl;
             switch (opcion){
@@ -122,14 +130,30 @@ int main(int argc, char* argv[]){
                 calculaFuncion(numero);
                 break;
             case '6':
+                pid = fork();
+
+                if (pid == -1) {
+                    cerr << "Error al crear el proceso hijo" << endl;
+                    return 1;
+                } else if (pid == 0) {
+                    execl("./conteoPalabras/conteoPalabras", "conteoPalabras", NULL);
+                    cerr << "Error al ejecutar conteoPalabras" << endl;
+                    return 1;
+                } else {
+                    wait(NULL);
+                    cout << "Ha salido del programa conteoPalabras exitosamente" << endl;
+                }
+                
+                break;
+            case '7':
                 if(rol == 0) ingresarUsuario();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
-            case '7':
+            case '8':
                 if(rol == 0) listarUsuarios();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
-            case '8':
+            case '9':
                 if(rol == 0) eliminarUsuario();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;

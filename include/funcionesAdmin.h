@@ -54,7 +54,6 @@ bool reintentar(){
             break;
         default:
             cout << "Opción Invalida" << endl;
-            system("clear");
             cout << "--------------------------------------------------------------" << endl;
             break;
         }
@@ -63,7 +62,6 @@ bool reintentar(){
 }
 
 void volver(){
-    system("clear");
     cout << "--------------------------------------------------------------" << endl;
     cout << "Ha vuelto al menú correctamente" << endl;
 }
@@ -124,7 +122,6 @@ void ingresarUsuario(){
     
     if(archivo.is_open()){
         archivo << "\n" << newUser << ";" << newPass << ";" << newRole;
-        system("clear");
         cout << "--------------------------------------------------------------" << endl;
         if(newRole == "0") cout << "Nuevo Usuario " << newUser << ", Admin ingresado correctamente" << endl;
         else cout << "Nuevo Usuario " << newUser << ", Genérico ingresado correctamente" << endl;
@@ -136,7 +133,6 @@ void listarUsuarios(){
     dotenv::init();
     ifstream archivo(dotenv::getenv("pathUsuarios"));
     string texto;
-    system("clear");
     cout << "--------------------------------------------------------------" << endl;
     cout << "\tLista de Usuarios" << endl;
     if(archivo.is_open()){
@@ -164,8 +160,14 @@ bool actualizaUsuarios(string usuario){
     if(archivo.is_open()){
         int i = 0;
         while(getline(archivo, texto)){
-            if(texto.substr(0, usuario.size()) != usuario) {
-                if (i == 0){
+            string aux = "";
+            int j = 0;
+            while(texto[j] != ';'){
+                aux.push_back(texto[j]);
+                j++;
+            }
+            if(aux != usuario) {
+                if (i == 0){    
                     textoActualizado = texto[0] + texto;
                     i++;
                 }
@@ -198,8 +200,7 @@ void eliminarUsuario(){
     bool eliminado = false;
     do{
         cout << "Ingrese Nombre de usuario: ";
-        cin >> user;        
-        system("clear");
+        cin >> user;
         cout << "--------------------------------------------------------------" << endl;
         if(!validaUsuario(user) || !actualizaUsuarios(user)){
             seguir = reintentar();

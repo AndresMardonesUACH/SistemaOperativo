@@ -90,7 +90,7 @@ int validaLogin(char* usuario, char* contrasena){
             }
             archivo.close();
         }
-        cout << "Falta el archivo " << dotenv::getenv("pathUsuarios") << endl;
+        cout << "Falta el archivo: " << dotenv::getenv("pathUsuarios") << endl;
         return -1;
     }
     return -1;
