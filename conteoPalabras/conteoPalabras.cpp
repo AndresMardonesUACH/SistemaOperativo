@@ -12,8 +12,7 @@ void mostrarInterfaz(char* extension, char* pathProcesar, char* pathRespuesta, b
     const char *noAsignado = "\033[31mNO ASIGNADO\033[0m";
     const char *invalido = "\033[31mINVÁLIDO\033[0m";
     const char *asignado = "\033[32mASIGNADO:\033[0m";
-
-    if (limpiar) system("clear");
+    
     cout << "Programa contador de palabras" << endl;
     cout << "pid: " << pid << endl;
     cout << "--------------------------------------------------------------";
@@ -77,7 +76,6 @@ int ejecutarSeleccion (char opcion, char*& extension, char*& pathProcesar, char*
             break;
         case '2':
             if (!pathProcesar) {
-                cout << "Ingrese la ruta de la carpeta a procesar." << endl;
                 insertarValor(pathProcesar, "el path de la carpeta a procesar");
             } else if (!existeDirectorio(pathProcesar)) {
                 cout << "\033[31mLa carpeta a procesar no existe.\033[0m" << endl;
@@ -91,22 +89,28 @@ int ejecutarSeleccion (char opcion, char*& extension, char*& pathProcesar, char*
                 do {
                     cout << "Opción: ";
                     cin >> opcion;
-                    switch (opcion){
-                        case '0':
-                            break;
-                        case '1':
-                            insertarValor(pathProcesar, "el path de la carpeta a procesar");
-                            break;
-                        default:
-                            cout << "Opción Invalida, intente de nuevo" << endl;
-                            break;
+                    cout << opcion << endl;
+                    if(isdigit(opcion)){
+                        switch (opcion){
+                            case '0':
+                                break;
+                            case '1':
+                                insertarValor(pathProcesar, "el path de la carpeta a procesar");
+                                break;
+                            default:
+                                cout << "Opción Invalida, intente de nuevo" << endl;
+                                break;
+                        }
+                    } else {
+                        system("clear");
+                        cout << "--------------------------------------------------------------" << endl;
+                        cout << "Debe ingresar un número, intente de nuevo" << endl;
                     }
                 } while (opcion != '0' && opcion != '1');
             }
             break;
         case '3':
             if (!pathRespuesta) {
-                cout << "Ingrese la ruta de la carpeta de respuesta." << endl;
                 insertarValor(pathRespuesta, "el path de la carpeta a procesar");
             } else if (!existeDirectorio(pathRespuesta)) {
                 cout << "\033[31mLa carpeta de respuesta no existe o no ha sido asignada.\033[0m" << endl;
@@ -162,6 +166,8 @@ int main() {
     delete[] extension;
     delete[] pathProcesar;
     delete[] pathRespuesta;
+
+    cout << "Ha vuelto al menú principal" << endl;
 
     return 0;
     

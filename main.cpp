@@ -103,7 +103,6 @@ int main(int argc, char* argv[]){
         cout << "Opción: ";
         cin >> opcion;
 
-        pid_t pid;
         if(isdigit(opcion)){
             system("clear");
             cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl;
@@ -130,20 +129,7 @@ int main(int argc, char* argv[]){
                 calculaFuncion(numero);
                 break;
             case '6':
-                pid = fork();
-
-                if (pid == -1) {
-                    cerr << "Error al crear el proceso hijo" << endl;
-                    return 1;
-                } else if (pid == 0) {
-                    execl("./conteoPalabras/conteoPalabras", "conteoPalabras", NULL);
-                    cerr << "Error al ejecutar conteoPalabras" << endl;
-                    return 1;
-                } else {
-                    wait(NULL);
-                    cout << "Ha salido del programa conteoPalabras exitosamente" << endl;
-                }
-                
+                system("./conteoPalabras/conteoPalabras");
                 break;
             case '7':
                 if(rol == 0) ingresarUsuario();
