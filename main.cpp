@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string>
 #include <sys/wait.h>
+#include "dotenv.h"
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
 #include "funcionesLogin.h"
@@ -129,7 +130,8 @@ int main(int argc, char* argv[]){
                 calculaFuncion(numero);
                 break;
             case '6':
-                system("./conteoPalabras/conteoPalabras");
+                dotenv::init();
+                system(dotenv::getenv("pathConteoPalabras").c_str());
                 break;
             case '7':
                 if(rol == 0) ingresarUsuario();

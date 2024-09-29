@@ -1,2 +1,2 @@
-usuario1;contrasena1;0
 Andres;123445;0
+prueba;123123;1

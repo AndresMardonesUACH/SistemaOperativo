@@ -1,7 +1,7 @@
 # Menú Sistema Operativo
 
 ## Descripción
-Este proyecto consta de un sistema que presenta un menú de opciones que además maneja perfiles de usuario. Las opciones que presenta ejecutan funciones cuyos argumentos son ingresados por el usuario mediante los parámetros del programa.
+Este proyecto consta de un sistema que presenta un menú de opciones que además maneja perfiles de usuario (con roles Admin y Genérico). Las opciones que presenta ejecutan funciones cuyos argumentos son ingresados por el usuario mediante los parámetros del programa.
 
 ## Requisitos
 * Sistema Operativo: Ubuntu 22.04
@@ -49,17 +49,27 @@ Elija una Opción:
 6. Conteo de palabras
 Opción:
 ```
+Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas 3 opciones: 
+```bash
+7. Ingresar Usuarios
+8. Listar Usuarios
+9. Eliminar Usuarios
+```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
 ## Funciones
 Las funciones que presenta el programa son:
 
+0. Salir del programa
 1. Detección de palíndromo (argumento utilizado: ``-t``)
 2. Conteo de vocales (argumento utilizado: ``-t``)
 3. Conteo de letras (argumento utilizado: ``-t``)
 4. Suma y promedio de vector (argumento utilizado: ``-v``)
 5. Cálculo de la función: ``f(x) = 5x*x + (1/x)`` (argumento utilizado: ``-n``)
-6. Salir del programa
+6. Se ejecuta el programa ``conteoPalabras`` (para más información consultar su propio readme.md)
+7. Ingresar usuario. En esta opción se pide que se ingrese el nombre del nuevo usuario, la contraseña y su rol (0: admin, 1: genérico).
+8. Listar usuarios. En esta opción se listan todos los usuarios que se encuentran ingresados en la base de datos del programa, indicando nombre y rol.
+9. Eliminar usuarios. En esta opción se pide que se ingrese el nombre del usuario a eliminar (no es posible eliminar administradores).
 
 ## Autor y Créditos
 

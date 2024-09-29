@@ -69,8 +69,11 @@ bool procesarDatos(char* extension, char* rutaProcesar, char* rutaRespuesta) {
         return true;
     }
 
+    bool archivoEncontrado = false;
+
     while ((entrada = readdir(directorio))) {
         if (entrada->d_type == DT_REG && esExtensionValida(entrada->d_name, extension)) {
+            archivoEncontrado = true;
             char archivoEntrada[MAX_LONGITUD_RUTA];
             char archivoSalida[MAX_LONGITUD_RUTA];
 
@@ -79,6 +82,10 @@ bool procesarDatos(char* extension, char* rutaProcesar, char* rutaRespuesta) {
 
             procesarArchivo(archivoEntrada, archivoSalida);
         }
+    }
+    if(!archivoEncontrado){
+        printf("\033[31mNo existen archivos con la extensión: %s\033[0m\n", extension);
+        return true;
     }
 
     closedir(directorio);
@@ -91,7 +98,12 @@ bool validarDatos(char* extension, char* rutaProcesar, char* rutaRespuesta) {
         return false;
     }
 
-    if (!existeDirectorio(rutaProcesar)) {
+    if (strcmp(rutaProcesar, rutaRespuesta) == 0) {
+        cout << "\033[31mError: Carpeta de entrada y de salida deben ser diferentes.\033[0m" << endl;
+        return false;
+    }
+
+    if (!existeDirectorio(rutaProcesar)) { 
         cout << "\033[31mError: La carpeta a procesar no existe.\033[0m" << endl;
         return false;
     }
