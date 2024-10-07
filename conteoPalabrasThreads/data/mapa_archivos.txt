@@ -1,0 +1,20 @@
+C. S. Lewis - Las Crónicas de Narnia.txt, 0
+Christopher Paolini - El Legado 2 - Eldest.txt, 1
+Dan Brown - El Símbolo Perdido.txt, 2
+Dan Brown - La Conspiración.txt, 3
+Gabriel García Márquez - Vivir para contarla.txt, 4
+George Norman Lippert - James Potter 1 - La Encrucijada de los Mayores.txt, 5
+George Norman Lippert - James Potter 2 - La Maldición del Guardián.txt, 6
+George R. R. Martin - Canción de Hielo y Fuego 1 - Juego de Tronos.txt, 7
+George R. R. Martin - Canción de Hielo y Fuego 2 - Choque de Reyes.txt, 8
+George R. R. Martin - Canción de Hielo y Fuego 3 - Tormenta de espadas I.txt, 9
+George R. R. Martin - Canción de Hielo y Fuego 3 - Tormenta de espadas II.txt, 10
+J.K. Rowling - Harry Potter 4 - El Cáliz de Fuego.txt, 11
+J.K. Rowling - Harry Potter 5 - La Orden del Fenix.txt, 12
+J.K. Rowling - Harry Potter 6 - El Misterio del Príncipe.txt, 13
+J.K. Rowling - Harry Potter 7 - Las Reliquias de la Muerte.txt, 14
+Katherine Neville - El Ocho.txt, 15
+Miguel de Cervantes - El Quijote de la Mancha.txt, 16
+Robert Ludlum - El caso Bourne.txt, 17
+Stephanie Meyer - Crepúsculo 4 - Amanecer.txt, 18
+Umberto Eco - El Nombre de la Rosa.txt, 19

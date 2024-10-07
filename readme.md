@@ -54,6 +54,8 @@ Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas
 7. Ingresar Usuarios
 8. Listar Usuarios
 9. Eliminar Usuarios
+10. Conteo Paralelo con Threads
+11. Crear Índice Invertido
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
@@ -70,9 +72,12 @@ Las funciones que presenta el programa son:
 7. Ingresar usuario. En esta opción se pide que se ingrese el nombre del nuevo usuario, la contraseña y su rol (0: admin, 1: genérico).
 8. Listar usuarios. En esta opción se listan todos los usuarios que se encuentran ingresados en la base de datos del programa, indicando nombre y rol.
 9. Eliminar usuarios. En esta opción se pide que se ingrese el nombre del usuario a eliminar (no es posible eliminar administradores).
+10. (completar)
+11. (completar)
 
 ## Autor y Créditos
 
 * Andrés Mardones
+* Martín Maza
 * laserpants (Librería dotenv: https://github.com/laserpants/dotenv-cpp)
     
