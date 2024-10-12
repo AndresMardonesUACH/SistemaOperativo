@@ -31,6 +31,36 @@ Donde los argumentos representan:
 | v | El vector de números enteros separados por ``,`` |
 | n | El número |
 
+Además se requieren de un grupo de variables de entorno. Estas deben estar indicadas en el archivo ``.env`` en la carpeta raíz, de la siguiente forma:
+```bash
+pathUsuarios = "[ruta]"
+pathConteoPalabras = "[ruta]"
+pathConteoPalabrasThreads = "[ruta]"
+extension = "[extensión]"
+pathEntrada = "[ruta]"
+pathSalida = "[ruta]"
+cantidad_thread = "[número]"
+mapa_archivos = "[ruta]"
+stop_word = "[ruta]"
+inverted_index = "[ruta]"
+pathInvertedIndex = "[ruta]" 
+```
+Donde estas variables representan:
+
+| Variable de entorno | Descripción |
+| -------- | ----------- |
+| pathUsuarios | Ruta donde se encuentra el archivo ``usuarios.txt`` con los usuarios del programa |
+| pathConteoPalabras | Ruta donde se encuentra el programa ``conteoPalabras``  |
+| pathConteoPalabrasThreads | Ruta donde se encuentra el programa ``conteoPalabrasThreads`` |
+| extension | Extensión con la cual se ejecutará el programa ``conteoPalabrasThreads`` |
+| pathEntrada | Ruta donde se encuentran los libros de entrada para ``conteoPalabrasThreads``  |
+| pathSalida | Ruta donde se generarán los archivos de salida para ``conteoPalabrasThreads`` |
+| cantidad_thread | Cantidad de threads con los que se ejecutará ``conteoPalabrasThreads`` |
+| mapa_archivos | Ruta donde se generará el archivo ``mapa_archivos.txt`` |
+| stop_word | Ruta donde se encuentra el archivo ``stop_words.txt`` |
+| inverted_index | Ruta donde se generará el archivo ``inverted_index.INDEX`` |
+| pathInvertedIndex | Ruta donde se encuentra el programa ``invertedIndex`` |
+
 ### Ejemplo de ejecución
 ```bash
 ./main -u "user" -p "pass12" -t "ojo" -v "3,1,4,1" -n "2.4"
@@ -49,7 +79,7 @@ Elija una Opción:
 6. Conteo de palabras
 Opción:
 ```
-Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas 3 opciones: 
+Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas 5 opciones: 
 ```bash
 7. Ingresar Usuarios
 8. Listar Usuarios
@@ -72,8 +102,8 @@ Las funciones que presenta el programa son:
 7. Ingresar usuario. En esta opción se pide que se ingrese el nombre del nuevo usuario, la contraseña y su rol (0: admin, 1: genérico).
 8. Listar usuarios. En esta opción se listan todos los usuarios que se encuentran ingresados en la base de datos del programa, indicando nombre y rol.
 9. Eliminar usuarios. En esta opción se pide que se ingrese el nombre del usuario a eliminar (no es posible eliminar administradores).
-10. (completar)
-11. (completar)
+10. Conteo Paralelo con Threads. En esta opción se ejecuta el programa ``conteoPalabrasThreads`` (para más información consultar su propio readme.md)
+11. Crear Inverted Index. Se ejecuta el programa ``invertedIndex`` (para más información consultar su propio readme.md)
 
 ## Autor y Créditos
 

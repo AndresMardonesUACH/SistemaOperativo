@@ -27,7 +27,7 @@ bool escribirInvertedIndex(unordered_map<string, vector<tuple<int, int>>> mapPal
         }
         archivo << endl;
     }
-    cout << "\033[32mArchivo inverted_index.txt creado correctamente\033[0m" << endl;
+    cout << "\033[32mArchivo inverted_index.INDEX creado correctamente\033[0m" << endl;
     archivo.close();
     return true;
 }
