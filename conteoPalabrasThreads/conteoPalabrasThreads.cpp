@@ -5,6 +5,14 @@
 #include "limpieza_archivo.h"
 using namespace std;
 
+void comunicarTermino(bool termino, const char* salida){
+    string nuevaRuta = string(salida) + "/cPTEjecutado.txt";
+    ofstream archivoTermino(nuevaRuta.c_str());
+    if(termino) archivoTermino << "true";
+    else archivoTermino << "false";
+    archivoTermino.close();
+}
+
 int main(int argc, char* argv[]){
     int opt, cantidad_thread;
     string extension = "";
@@ -39,15 +47,19 @@ int main(int argc, char* argv[]){
         }
     }
     
+    bool termino = false;
+
     if (verificar_configuracion(pathEntrada, pathSalida, mapa_archivos, cantidad_thread_str, extension, archivo_stop_words, cantidad_thread)) {
-        escribirMapaArchivos(pathEntrada, mapa_archivos, extension);
-        
-        if (existe_archivo(mapa_archivos.c_str())) {
-            procesar_libros(pathEntrada, pathSalida, mapa_archivos, extension, archivo_stop_words, cantidad_thread);
-        } else {
-            cerr << "El archivo de mapeo no existe: " << mapa_archivos << endl;
+        if(escribirMapaArchivos(pathEntrada, mapa_archivos, extension)){
+            if (existe_archivo(mapa_archivos.c_str())) {
+                procesar_libros(pathEntrada, pathSalida, mapa_archivos, extension, archivo_stop_words, cantidad_thread);
+                termino = true;
+            } else {
+                cerr << "El archivo de mapeo no existe: " << mapa_archivos << endl;
+            }
         }
     }
+    comunicarTermino(termino, pathSalida.c_str());
 
     return 0;
 }

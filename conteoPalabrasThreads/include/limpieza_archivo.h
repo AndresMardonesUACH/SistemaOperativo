@@ -87,7 +87,7 @@ void procesar_libro(const unordered_set<string>& stop_words, const string& archi
 
     // Escribir resultados en el archivo de salida
     for (const auto& [palabra, conteo] : conteo_palabras) {
-        archivo_salida << palabra << ": " << conteo << endl;
+        archivo_salida << palabra << "; " << conteo << endl;
     }
 
     archivo_salida.close();
@@ -97,6 +97,25 @@ void procesar_libro(const unordered_set<string>& stop_words, const string& archi
 void procesar_libros(string pathEntrada, string pathSalida, string mapa_archivos, string extension, string archivo_stop_words, int cantidad_thread) {
     unordered_set<string> stop_words = cargar_stop_words(archivo_stop_words);
     unordered_map<string, string> ids_archivos = cargar_ids_archivos(mapa_archivos);
+
+    // Obtener la lista de archivos en el directorio de entrada
+    DIR* dir;
+    struct dirent* entry;
+    vector<string> rutas_libros;
+    
+    if ((dir = opendir(pathEntrada.c_str())) != nullptr) {
+        while ((entry = readdir(dir)) != nullptr) {
+            string archivo(entry->d_name);
+            // Filtrar por extensión
+            if (archivo.find("." + extension) != string::npos) {
+                rutas_libros.push_back(archivo);
+            }
+        }
+        closedir(dir);
+    } else {
+        cerr << "No se pudo abrir el directorio: " << pathEntrada << endl;
+        return;
+    }
 
     // Mutex para proteger el acceso concurrente al archivo de salida
     mutex mtx_resultado;
