@@ -1,29 +1,28 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
-#include <fstream>
-#include "mapa_archivos.h"
+#include "crearInvertedIndex.h"
 using namespace std;
 
 
-void comunicarTermino(bool termino, const char* salida){
-    string nuevaRuta = string(salida) + "/cPTEjecutado.txt";
-    ofstream archivoTermino(nuevaRuta.c_str());
-    if(termino) archivoTermino << "true";
-    else archivoTermino << "false";
-    archivoTermino.close();
+bool cPTEjecutado(const char* salida){
+    string ruta = string(salida) + "/cPTEjecutado.txt";  
+    ifstream archivoTermino(ruta.c_str());
+    string linea;
+    archivoTermino >> linea;
+    if(linea == "true") return true;
+    return false;
 }
-
 
 int main(int argc, char* argv[]){
     int opt;
     char* extension = nullptr;
     char* entrada = nullptr;
     char* salida = nullptr;
-    char* stop_word = nullptr;
     char* mapa_archivos = nullptr;
+    char* inverted_index = nullptr;
 
-    while ((opt = getopt(argc, argv, "e:i:o:s:m:")) != -1){
+    while ((opt = getopt(argc, argv, "e:i:o:m:x:")) != -1){
         switch (opt){
         case 'e':
             extension = optarg;
@@ -34,11 +33,11 @@ int main(int argc, char* argv[]){
         case 'o':
             salida = optarg;
             break;
-        case 's':
-            stop_word = optarg;
-            break;
         case 'm':
             mapa_archivos = optarg;
+            break;
+        case 'x':
+            inverted_index = optarg;
             break;
         default:
             break;
@@ -58,24 +57,21 @@ int main(int argc, char* argv[]){
         cout << "ERROR. Debe ingresar path de salida -o" << endl;
         exit(EXIT_FAILURE);
     }
-    if(!stop_word){
-        cout << "ERROR. Debe ingresar path de stop_words -s" << endl;
-        exit(EXIT_FAILURE);
-    }
     if(!mapa_archivos){
         cout << "ERROR. Debe ingresar path de mapa_archivos -m" << endl;
         exit(EXIT_FAILURE);
     }
-
-    if(strcmp(entrada, salida) == 0){
-        cout << "ERROR. Carpeta de entrada debe ser diferente a la carpeta de salida" << endl;
+    if(!inverted_index){
+        cout << "ERROR. Debe ingresar path de inverted_index -x" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if(!cPTEjecutado(salida)){
+        cout << "\033[31mERROR. Debe ejecutarse 'Conteo Paralelo con Threads' antes\033[0m" << endl;
         exit(EXIT_FAILURE);
     }
 
-    bool termino = false;
-    if (escribirMapaArchivos(entrada, mapa_archivos, extension)) termino = true;
+    crearInvertedIndex(salida, mapa_archivos, inverted_index, extension);
 
-    comunicarTermino(termino, salida);
 
     return 0;
 }

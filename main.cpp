@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
-#include <sys/wait.h>
 #include "dotenv.h"
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
@@ -47,6 +46,25 @@ void conteoPalabrasThreads(){
     comando += " -s" + dotenv::getenv("stop_word");
     comando += " -m" + dotenv::getenv("mapa_archivos");
     system(comando.c_str());
+}
+
+void invertedIndex(){
+    dotenv::init();
+    string comando = dotenv::getenv("pathInvertedIndex");
+    comando += " -e" + dotenv::getenv("extension");
+    comando += " -i" + dotenv::getenv("pathEntrada");
+    comando += " -o" + dotenv::getenv("pathSalida");
+    comando += " -m" + dotenv::getenv("mapa_archivos");
+    comando += " -x" + dotenv::getenv("inverted_index");
+    system(comando.c_str());
+}
+
+void comunicarTermino(bool termino, const char* salida){
+    string nuevaRuta = string(salida) + "/cPTEjecutado.txt";
+    ofstream archivoTermino(nuevaRuta.c_str());
+    if(termino) archivoTermino << "true";
+    else archivoTermino << "false";
+    archivoTermino.close();
 }
 
 int main(int argc, char* argv[]){
@@ -134,62 +152,53 @@ int main(int argc, char* argv[]){
             cout << "--------------------------------------------------------------";
             cout << "\nOpción elegida: " << opcion << endl;
 
-            if(opcion.length() == 1){
-                switch ((opcion[0])){
-                case '1':
-                    esPalindromo(texto);
-                    break;
-                case '2':
-                    cuentaVocales(texto);
-                    break;
-                case '3':
-                    cuentaLetras(texto);
-                    break;
-                case '4':
-                    operaVector(vector);
-                    break;
-                case '5':
-                    calculaFuncion(numero);
-                    break;
-                case '6':
-                    dotenv::init();
-                    system(dotenv::getenv("pathConteoPalabras").c_str());
-                    break;
-                case '7':
-                    if(rol == 0) ingresarUsuario();
-                    else cout << "Opción Invalida, intente de nuevo" << endl;
-                    break;
-                case '8':
-                    if(rol == 0) listarUsuarios();
-                    else cout << "Opción Invalida, intente de nuevo" << endl;
-                    break;
-                case '9':
-                    if(rol == 0) eliminarUsuario();
-                    else cout << "Opción Invalida, intente de nuevo" << endl;
-                    break;
-                case '0':
-                    cout << "Ha salido del programa exitosamente" << endl;
-                    break;
-                default:
-                    cout << "Opción Invalida, intente de nuevo" << endl;
-                    break;
-                }
-            }
-            else if (opcion.length() == 2 && opcion[0] == '1'){
-                switch ((opcion[1])){
-                case '0':
-                    conteoPalabrasThreads();
-                    break;
-                case '1':
-                    cout << "Esta es la opción 11" << endl;
-                    break;
-                default:
-                    cout << "Opción Invalida, intente de nuevo" << endl;
-                    break;
-                }
-            }
-            else{
+
+            switch ((stoi(opcion))){
+            case 1:
+                esPalindromo(texto);
+                break;
+            case 2:
+                cuentaVocales(texto);
+                break;
+            case 3:
+                cuentaLetras(texto);
+                break;
+            case 4:
+                operaVector(vector);
+                break;
+            case 5:
+                calculaFuncion(numero);
+                break;
+            case 6:
+                dotenv::init();
+                system(dotenv::getenv("pathConteoPalabras").c_str());
+                break;
+            case 7:
+                if(rol == 0) ingresarUsuario();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 8:
+                if(rol == 0) listarUsuarios();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 9:
+                if(rol == 0) eliminarUsuario();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 10:
+                if(rol == 0) conteoPalabrasThreads();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 11:
+                if(rol == 0) invertedIndex();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 0:
+                cout << "Ha salido del programa exitosamente" << endl;
+                break;
+            default:
                 cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
             }
         }
         else{
@@ -198,8 +207,10 @@ int main(int argc, char* argv[]){
             cout << "Debe ingresar un número, intente de nuevo" << endl;
         }
         cout << "--------------------------------------------------------------" << endl;
-    } while (opcion.length() != 1 || opcion[0] != '0');
+    } while (stoi(opcion) != 0);
 
-
+    dotenv::init();
+    comunicarTermino(false, dotenv::getenv("pathSalida").c_str());
+    
     exit(EXIT_SUCCESS);
 }

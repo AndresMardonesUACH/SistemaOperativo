@@ -46,20 +46,14 @@ bool procesarDatos(string extension, string pathEntrada, string pathMapaArchivos
         cout << "\033[31mNo existen archivos con la extensión: " << extension << "\033[0m" << endl;
         return false;
     }
-
+    archivo.close();
     closedir(directorio);
     return true;
 }
 
 bool escribirMapaArchivos(string pathEntrada, string pathMapaArchivos, string extension){
-
-    if (!existeDirectorio(pathMapaArchivos.c_str())){ 
-        cout << "ERROR. La carpeta para mapa_archivos no existe" << endl;
-        return false;
-    }
-    string nuevaRuta = pathMapaArchivos + "/mapa_archivos.txt";
     
-    if(procesarDatos(extension, pathEntrada, nuevaRuta)){
+    if(procesarDatos(extension, pathEntrada, pathMapaArchivos)){
         cout << "\033[32mArchivo mapa_archivos.txt creado correctamente\033[0m" << endl;   
         return true;
     }

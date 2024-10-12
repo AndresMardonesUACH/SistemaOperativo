@@ -1,0 +1,6 @@
+avion; 1
+arbol;12
+gato; 2
+astronauta; 1
+perro; 3
+palabra; 2
