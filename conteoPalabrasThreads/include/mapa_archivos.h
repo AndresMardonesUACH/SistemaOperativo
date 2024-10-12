@@ -1,27 +1,8 @@
 #include <iostream>
-#include <string.h>
+#include <fstream>
 #include <dirent.h>
-#include <fstream> 
-#include <sys/stat.h>
+#include <utilidades.h>
 using namespace std;
-
-
-bool existeDirectorio(const char* ruta) {
-    struct stat info;
-    if (stat(ruta, &info) != 0) {
-        return false;
-    } else if (info.st_mode & S_IFDIR) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-int esExtensionValida(const char* nombreArchivo, const char* extension) {
-    const char *punto = strrchr(nombreArchivo, '.');
-    if (!punto || punto == nombreArchivo) return 0;
-    return strcmp(punto + 1, extension) == 0;
-}
 
 bool procesarDatos(string extension, string pathEntrada, string pathMapaArchivos) {
     struct dirent *entrada;
@@ -38,7 +19,7 @@ bool procesarDatos(string extension, string pathEntrada, string pathMapaArchivos
     while ((entrada = readdir(directorio))) {
         if (entrada->d_type == DT_REG && esExtensionValida(entrada->d_name, extension.c_str())) {
             archivoEncontrado = true;
-            archivo << entrada->d_name << ", " << i << endl;
+            archivo << entrada->d_name << "," << i << endl;
             i++;
         }
     }
@@ -53,7 +34,7 @@ bool procesarDatos(string extension, string pathEntrada, string pathMapaArchivos
 
 bool escribirMapaArchivos(string pathEntrada, string pathMapaArchivos, string extension){
 
-    if (!existeDirectorio(pathMapaArchivos.c_str())){ 
+    if (!existe_archivo(pathMapaArchivos.c_str())){ 
         cout << "ERROR. La carpeta para mapa_archivos no existe" << endl;
         return false;
     }

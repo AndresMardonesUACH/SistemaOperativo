@@ -2,65 +2,52 @@
 #include <unistd.h>
 #include <string.h>
 #include "mapa_archivos.h"
+#include "limpieza_archivo.h"
 using namespace std;
 
 int main(int argc, char* argv[]){
-    int opt;
-    char* extension = nullptr;
-    char* entrada = nullptr;
-    char* salida = nullptr;
-    char* stop_word = nullptr;
-    char* mapa_archivos = nullptr;
+    int opt, cantidad_thread;
+    string extension = "";
+    string pathEntrada = "";
+    string pathSalida = "";
+    string archivo_stop_words = "";
+    string mapa_archivos = "";
+    string cantidad_thread_str= "";
 
-    while ((opt = getopt(argc, argv, "e:i:o:s:m:")) != -1){
+    while ((opt = getopt(argc, argv, "e:i:o:s:m:t:")) != -1){
         switch (opt){
         case 'e':
             extension = optarg;
             break;
         case 'i':
-            entrada = optarg;
+            pathEntrada = optarg;
             break;
         case 'o':
-            salida = optarg;
+            pathSalida = optarg;
             break;
         case 's':
-            stop_word = optarg;
+            archivo_stop_words = optarg;
             break;
         case 'm':
             mapa_archivos = optarg;
+            break;
+        case 't':
+            cantidad_thread_str = optarg;
             break;
         default:
             break;
         }
     }
-
-    // Se valida que todos los argumentos hayan sido ingresados
-    if(!extension){
-        cout << "ERROR. Debe ingresar extensión -e" << endl;
-        exit(EXIT_FAILURE);
+    
+    if (verificar_configuracion(pathEntrada, pathSalida, mapa_archivos, cantidad_thread_str, extension, archivo_stop_words, cantidad_thread)) {
+        escribirMapaArchivos(pathEntrada, mapa_archivos, extension);
+        
+        if (existe_archivo(mapa_archivos.c_str())) {
+            procesar_libros(pathEntrada, pathSalida, mapa_archivos, extension, archivo_stop_words, cantidad_thread);
+        } else {
+            cerr << "El archivo de mapeo no existe: " << mapa_archivos << endl;
+        }
     }
-    if(!entrada){
-        cout << "ERROR. Debe ingresar path de entrada -i" << endl;
-        exit(EXIT_FAILURE);
-    }
-    if(!salida){
-        cout << "ERROR. Debe ingresar path de salida -o" << endl;
-        exit(EXIT_FAILURE);
-    }
-    if(!stop_word){
-        cout << "ERROR. Debe ingresar path de stop_words -s" << endl;
-        exit(EXIT_FAILURE);
-    }
-    if(!mapa_archivos){
-        cout << "ERROR. Debe ingresar path de mapa_archivos -m" << endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if(strcmp(entrada, salida) == 0){
-        cout << "ERROR. Carpeta de entrada debe ser diferente a la carpeta de salida" << endl;
-    }
-
-    escribirMapaArchivos(entrada, mapa_archivos, extension);
 
     return 0;
 }

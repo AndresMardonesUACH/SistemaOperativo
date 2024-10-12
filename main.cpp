@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
-#include <sys/wait.h>
 #include "dotenv.h"
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
@@ -46,6 +45,7 @@ void conteoPalabrasThreads(){
     comando += " -o" + dotenv::getenv("pathSalida");
     comando += " -s" + dotenv::getenv("stop_word");
     comando += " -m" + dotenv::getenv("mapa_archivos");
+    comando += " -t" + dotenv::getenv("cantidad_thread");
     system(comando.c_str());
 }
 
@@ -57,6 +57,7 @@ int main(int argc, char* argv[]){
     char* texto = nullptr;
     char* vector = nullptr;
     char* numero = nullptr;
+    char* cant_threads = nullptr;
     
     // Se obtienen los argumentos del programa
     while ((opt = getopt(argc, argv, "u:p:t:v:n:")) != -1){
