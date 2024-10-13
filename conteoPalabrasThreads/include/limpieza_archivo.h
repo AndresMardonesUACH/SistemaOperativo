@@ -5,23 +5,29 @@
 #include <mutex>
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <locale>
+
 using namespace std;
 
-unordered_set<string> cargar_stop_words(const string& archivo_stop_words) {
-    unordered_set<string> stop_words;
-    ifstream archivo(archivo_stop_words);
+// Cargar las palabras de stop desde un archivo
+unordered_set<string> cargarStopWords(const string& archivoStopWords) {
+    unordered_set<string> stopWords;
+    ifstream archivo(archivoStopWords);
     archivo.imbue(locale("en_US.UTF-8"));
     string palabra;
 
     while (archivo >> palabra) {
-        stop_words.insert(palabra);
+        stopWords.insert(palabra);
     }
 
-    return stop_words;
+    return stopWords;
 }
-unordered_map<string, string> cargar_ids_archivos(const string& archivo_ids_archivos) {
-    unordered_map<string, string> ids_archivos;
-    ifstream archivo(archivo_ids_archivos);
+
+// Cargar los IDs de los archivos desde un archivo
+unordered_map<string, string> cargarIdsArchivos(const string& archivoIdsArchivos) {
+    unordered_map<string, string> idsArchivos;
+    ifstream archivo(archivoIdsArchivos);
     archivo.imbue(locale("en_US.UTF-8"));
 
     string linea;
@@ -30,118 +36,100 @@ unordered_map<string, string> cargar_ids_archivos(const string& archivo_ids_arch
         string clave, valor;
 
         if (getline(ss, clave, ',') && getline(ss, valor)) {
-            ids_archivos[clave] = valor;
+            idsArchivos[clave] = valor;
         } else {
             cerr << "Error procesando línea: " << linea << endl;
         }
     }
 
-    return ids_archivos;
+    return idsArchivos;
 }
 
-string limpiar_palabra(const string& palabra) {
-    string palabra_limpia;
+// Limpiar una palabra eliminando caracteres no alfanuméricos
+string limpiarPalabra(const string& palabra) {
+    string palabraLimpia;
 
-    for (size_t i = 0; i < palabra.size(); ++i) {
-        unsigned char c = palabra[i];
-
-        if (isalnum(c) || (c >= 0xC0 && c <= 0xFF)) {
-            palabra_limpia += tolower(c);
+    for (char c : palabra) {
+        unsigned char uc = static_cast<unsigned char>(c);
+        if (isalnum(uc) || (uc >= 0xC0 && uc <= 0xFF)) {
+            palabraLimpia += tolower(uc);
         }
     }
-    
-    return palabra_limpia;
+
+    return palabraLimpia;
 }
 
-void procesar_libro(const unordered_set<string>& stop_words, const string& archivo_libro, const string& path_salida, const string& id_archivo, const string& extension, mutex& mtx) {
-    ifstream archivo(archivo_libro);
-    archivo.imbue(locale("en_US.UTF-8"));  // Leer el archivo como UTF-8
+// Procesar un libro y contar las palabras, excluyendo stop words
+void procesarLibro(const unordered_set<string>& stopWords, const string& archivoLibro, const string& pathSalida,
+                   const string& idArchivo, const string& extension, mutex& mtx) {
+    ifstream archivo(archivoLibro);
+    archivo.imbue(locale("en_US.UTF-8"));
+
     if (!archivo.is_open()) {
-        cerr << "No se pudo abrir el archivo: " << archivo_libro << endl;
+        cerr << "No se pudo abrir el archivo: " << archivoLibro << endl;
         return;
     }
 
-    unordered_map<string, int> conteo_palabras;
+    unordered_map<string, int> conteoPalabras;
     string palabra;
 
-    // Procesar cada palabra del archivo
-    while (archivo >> palabra) { 
-        palabra = limpiar_palabra(palabra);
+    while (archivo >> palabra) {
+        palabra = limpiarPalabra(palabra);
 
-        // Solo contar si no es una stopword y no está vacía
-        if (!palabra.empty() && stop_words.find(palabra) == stop_words.end()) {
-            conteo_palabras[palabra]++;
+        if (!palabra.empty() && stopWords.find(palabra) == stopWords.end()) {
+            conteoPalabras[palabra]++;
         }
     }
 
     archivo.close();
 
-    // Crear archivo de salida
-    ofstream archivo_salida(path_salida + "/" + id_archivo + "." + extension);
-    archivo_salida.imbue(locale("en_US.UTF-8"));  // Aseguramos que la salida sea en UTF-8
-    
-    if (!archivo_salida.is_open()) {
-        cerr << "No se pudo crear el archivo de salida para: " << id_archivo + "." + extension << endl;
+    // Escribir el conteo de palabras en el archivo de salida
+    ofstream archivoSalida(pathSalida + "/" + idArchivo + "." + extension);
+    archivoSalida.imbue(locale("en_US.UTF-8"));
+
+    if (!archivoSalida.is_open()) {
+        cerr << "No se pudo crear el archivo de salida para: " << idArchivo + "." + extension << endl;
         return;
     }
 
-    // Escribir resultados en el archivo de salida
-    for (const auto& [palabra, conteo] : conteo_palabras) {
-        archivo_salida << palabra << "; " << conteo << endl;
+    for (const auto& [palabra, conteo] : conteoPalabras) {
+        archivoSalida << palabra << "; " << conteo << endl;
     }
 
-    archivo_salida.close();
+    archivoSalida.close();
 }
 
-// Función principal para procesar los libros
-void procesar_libros(string pathEntrada, string pathSalida, string mapa_archivos, string extension, string archivo_stop_words, int cantidad_thread) {
-    unordered_set<string> stop_words = cargar_stop_words(archivo_stop_words);
-    unordered_map<string, string> ids_archivos = cargar_ids_archivos(mapa_archivos);
+// Función principal para procesar múltiples libros usando hilos
+void procesarLibros(const string& pathEntrada, const string& pathSalida, const string& mapaArchivos,
+                    const string& extension, const string& archivoStopWords, int cantidadThreads) {
+    unordered_set<string> stopWords = cargarStopWords(archivoStopWords);
+    unordered_map<string, string> idsArchivos = cargarIdsArchivos(mapaArchivos);
 
-    // Obtener la lista de archivos en el directorio de entrada
-    DIR* dir;
-    struct dirent* entry;
-    vector<string> rutas_libros;
-    
-    if ((dir = opendir(pathEntrada.c_str())) != nullptr) {
-        while ((entry = readdir(dir)) != nullptr) {
-            string archivo(entry->d_name);
-            // Filtrar por extensión
-            if (archivo.find("." + extension) != string::npos) {
-                rutas_libros.push_back(archivo);
-            }
-        }
-        closedir(dir);
-    } else {
-        cerr << "No se pudo abrir el directorio: " << pathEntrada << endl;
-        return;
-    }
+    // Mutex para proteger el acceso concurrente a los resultados
+    mutex mtxResultado;
 
-    // Mutex para proteger el acceso concurrente al archivo de salida
-    mutex mtx_resultado;
-
-    // Crear y lanzar los threads
     vector<thread> hilos;
-    int archivos_por_hilo = rutas_libros.size() / cantidad_thread;
-    int resto = rutas_libros.size() % cantidad_thread;
+    int archivosPorHilo = idsArchivos.size() / cantidadThreads;
+    int resto = idsArchivos.size() % cantidadThreads;
 
-    for (int i = 0; i < cantidad_thread; ++i) {
-        int inicio = i * archivos_por_hilo;
-        int fin = (i == cantidad_thread - 1) ? rutas_libros.size() : inicio + archivos_por_hilo;
+    auto it = idsArchivos.begin();
 
-        hilos.emplace_back([&, inicio, fin]() {
-            for (int j = inicio; j < fin; ++j) {
-                if (ids_archivos.find(rutas_libros[j]) != ids_archivos.end()) {
-                    procesar_libro(stop_words, pathEntrada + "/" + rutas_libros[j], pathSalida, ids_archivos.at(rutas_libros[j]), extension, mtx_resultado);
-                } else {
-                    cerr << "ID no encontrado para el archivo: " << rutas_libros[j] << endl;
-                }
+    for (int i = 0; i < cantidadThreads; ++i) {
+        int cantidadActual = archivosPorHilo + (i < resto ? 1 : 0);
+
+        hilos.emplace_back([&, cantidadActual, it]() mutable {
+            for (int j = 0; j < cantidadActual; ++j) {
+                const string& archivo = it->first;
+                const string& id = it->second;
+                ++it;
+                procesarLibro(stopWords, pathEntrada + "/" + archivo, pathSalida, id, extension, mtxResultado);
             }
         });
     }
 
-    // Unir los threads
     for (auto& hilo : hilos) {
         hilo.join();
     }
+
+    cout << "\033[32mConteo de palabras paralelo con threads realizado correctamente." << endl << idsArchivos.size() << " archivos procesados." << endl << "Salida en " << pathSalida << "\033[0m" << endl;
 }
