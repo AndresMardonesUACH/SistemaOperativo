@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
-#include <utilidades.h>  // Asegúrate de tener este archivo disponible
+#include <filesystem>
+#include "utilidades.h"
 using namespace std;
 
 // Procesar archivos en el directorio que coincidan con la extensión
@@ -44,13 +45,14 @@ bool procesarDatos(const string& extension, const string& pathEntrada, const str
 
 // Escribir el archivo mapa_archivos si la carpeta existe y se encuentran archivos válidos
 bool escribirMapaArchivos(const string& pathEntrada, const string& pathMapaArchivos, const string& extension) {
-    if (!existeArchivo(pathMapaArchivos.c_str())) {
+    filesystem::path rutaCompleta(pathMapaArchivos);
+    string rutaMapaArchivos = rutaCompleta.parent_path();
+    if (!existeDirectorio(rutaMapaArchivos.c_str())) {
         cout << "ERROR. La carpeta para mapa_archivos no existe" << endl;
         return false;
     }
 
-    string rutaMapaArchivos = pathMapaArchivos;
-    if (procesarDatos(extension, pathEntrada, rutaMapaArchivos)) {
+    if (procesarDatos(extension, pathEntrada, pathMapaArchivos)) {
         cout << "\033[32mArchivo mapa_archivos.txt creado correctamente\033[0m" << endl;
         return true;
     }

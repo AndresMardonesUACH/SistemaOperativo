@@ -6,7 +6,6 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
-#include <locale>
 
 using namespace std;
 
@@ -14,7 +13,6 @@ using namespace std;
 unordered_set<string> cargarStopWords(const string& archivoStopWords) {
     unordered_set<string> stopWords;
     ifstream archivo(archivoStopWords);
-    archivo.imbue(locale("en_US.UTF-8"));
     string palabra;
 
     while (archivo >> palabra) {
@@ -28,7 +26,6 @@ unordered_set<string> cargarStopWords(const string& archivoStopWords) {
 unordered_map<string, string> cargarIdsArchivos(const string& archivoIdsArchivos) {
     unordered_map<string, string> idsArchivos;
     ifstream archivo(archivoIdsArchivos);
-    archivo.imbue(locale("en_US.UTF-8"));
 
     string linea;
     while (getline(archivo, linea)) {
@@ -63,7 +60,6 @@ string limpiarPalabra(const string& palabra) {
 void procesarLibro(const unordered_set<string>& stopWords, const string& archivoLibro, const string& pathSalida,
                    const string& idArchivo, const string& extension, mutex& mtx) {
     ifstream archivo(archivoLibro);
-    archivo.imbue(locale("en_US.UTF-8"));
 
     if (!archivo.is_open()) {
         cerr << "No se pudo abrir el archivo: " << archivoLibro << endl;
@@ -85,7 +81,6 @@ void procesarLibro(const unordered_set<string>& stopWords, const string& archivo
 
     // Escribir el conteo de palabras en el archivo de salida
     ofstream archivoSalida(pathSalida + "/" + idArchivo + "." + extension);
-    archivoSalida.imbue(locale("en_US.UTF-8"));
 
     if (!archivoSalida.is_open()) {
         cerr << "No se pudo crear el archivo de salida para: " << idArchivo + "." + extension << endl;
@@ -117,7 +112,7 @@ void procesarLibros(const string& pathEntrada, const string& pathSalida, const s
     for (int i = 0; i < cantidadThreads; ++i) {
         int cantidadActual = archivosPorHilo + (i < resto ? 1 : 0);
 
-        hilos.emplace_back([&, cantidadActual, it]() mutable {
+        hilos.emplace_back([&, cantidadActual]() mutable {
             for (int j = 0; j < cantidadActual; ++j) {
                 const string& archivo = it->first;
                 const string& id = it->second;
@@ -127,6 +122,7 @@ void procesarLibros(const string& pathEntrada, const string& pathSalida, const s
         });
     }
 
+    cout << "Procesando..." << endl;
     for (auto& hilo : hilos) {
         hilo.join();
     }

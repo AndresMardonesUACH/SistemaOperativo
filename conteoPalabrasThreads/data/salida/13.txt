@@ -6161,7 +6161,7 @@ lÃquido; 15
 pasag; 1
 desierta; 4
 brazalete; 1
-habÃa; 1,000
+habÃa; 1000
 venganza; 3
 espectros; 1
 hinchando; 3
@@ -10798,7 +10798,7 @@ mejorarÃa; 1
 ÂcÃspita; 1
 platos; 7
 tarda; 3
-harry; 2,173
+harry; 2173
 endurecido; 5
 mÃrito; 2
 arkie; 1

@@ -80,12 +80,11 @@ void invertedIndex(){
  * @param termino: true si la operación terminó, false en caso contrario
  * @param salida: ruta del directorio de salida
  */
-void comunicarTermino(bool termino){
-    const char* salida = dotenv::getenv("pathSalida").c_str();
-    string nuevaRuta = string(salida) + "/cPTEjecutado.txt"; // Ruta del archivo
+void comunicarTermino(bool termino, string salida){
+    string nuevaRuta = salida + "/cPTEjecutado.txt"; // Ruta del archivo
     ofstream archivoTermino(nuevaRuta.c_str()); // Abre el archivo para escribir
-    if(termino) archivoTermino << "true"; // Escribe "true" si terminó
-    else archivoTermino << "false"; // Escribe "false" si no terminó
+    if(termino) archivoTermino << "true";
+    else archivoTermino << "false"; 
     archivoTermino.close(); // Cierra el archivo
 }
 
@@ -97,7 +96,6 @@ int main(int argc, char* argv[]){
     char* texto = nullptr; // Almacena el texto
     char* vector = nullptr; // Almacena el vector
     char* numero = nullptr; // Almacena un número
-    char* cant_threads = nullptr; // Almacena la cantidad de hilos
     
     // Se obtienen los argumentos del programa
     while ((opt = getopt(argc, argv, "u:p:t:v:n:")) != -1){
@@ -226,11 +224,11 @@ int main(int argc, char* argv[]){
             cout << "--------------------------------------------------------------";
             cout << "La opción no es un número, intente de nuevo." << endl; // Mensaje de error
         }
-        cout << "--------------------------------------------------------------";
+        cout << "--------------------------------------------------------------" << endl;
     } while (!esNumero(opcion) || stoi(opcion) != 0); // Continua hasta que el usuario elija salir
 
     dotenv::init();
-    comunicarTermino(false);
+    comunicarTermino(false, dotenv::getenv("pathSalida"));
 
     exit(EXIT_SUCCESS);
 }
