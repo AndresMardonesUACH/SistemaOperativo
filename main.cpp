@@ -215,6 +215,9 @@ int main(int argc, char* argv[]){
                 if(rol == 0) invertedIndex(); // Crea índice invertido si es admin
                 else cout << "Opción Invalida, intente de nuevo" << endl; // Mensaje de error
                 break;
+            case 12:
+                if (rol == 0) analisisPerformance();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
             default:
                 cout << "Opción Invalida, intente de nuevo" << endl; // Mensaje de error
                 break;
