@@ -29,6 +29,7 @@ void generaInterfaz(int rol){
         cout << "9. Eliminar Usuarios " << endl;
         cout << "10. Conteo Paralelo con Threads " << endl;
         cout << "11. Crear Índice Invertido" << endl;
+        cout << "12. Análisis de Performance" << endl;
     }
 }
 
@@ -87,6 +88,27 @@ void comunicarTermino(bool termino, string salida){
     else archivoTermino << "false"; 
     archivoTermino.close(); // Cierra el archivo
 }
+
+void analisisPerformance(){
+    dotenv::init(); // Inicializa dotenv
+    string comando = dotenv::getenv("ejecutador"); // Obtiene el path del programa
+    // Agrega argumentos al comando
+    comando += " -p" + dotenv::getenv("pathConteoPalabrasThreads");
+    comando += " -e" + dotenv::getenv("extension");
+    comando += " -i" + dotenv::getenv("pathEntrada");
+    comando += " -o" + dotenv::getenv("pathSalida");
+    comando += " -s" + dotenv::getenv("stop_word");
+    comando += " -m" + dotenv::getenv("mapa_archivos");
+    comando += " -t" + dotenv::getenv("array_threads");
+    comando += " -r" + dotenv::getenv("repeticiones");
+    comando += " -d" + dotenv::getenv("datos");
+    comando += " -g" + dotenv::getenv("grafico");
+    comando += " -a" + dotenv::getenv("analizador");
+    system(comando.c_str()); // Ejecuta el comando en el sistema
+
+
+}
+
 
 int main(int argc, char* argv[]){
     // Declaración de variables que albergarán los argumentos del programa
@@ -218,13 +240,14 @@ int main(int argc, char* argv[]){
             case 12:
                 if (rol == 0) analisisPerformance();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
             default:
                 cout << "Opción Invalida, intente de nuevo" << endl; // Mensaje de error
                 break;
             }
         } else {
             system("clear"); // Limpia la pantalla
-            cout << "--------------------------------------------------------------";
+            cout << "--------------------------------------------------------------" << endl;
             cout << "La opción no es un número, intente de nuevo." << endl; // Mensaje de error
         }
         cout << "--------------------------------------------------------------" << endl;
