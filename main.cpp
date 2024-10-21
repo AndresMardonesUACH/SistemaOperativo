@@ -27,6 +27,7 @@ void generaInterfaz(int rol){
         cout << "9. Eliminar Usuarios " << endl;
         cout << "10. Conteo Paralelo con Threads " << endl;
         cout << "11. Crear Índice Invertido" << endl;
+        cout << "12. Planificador" << endl;
     }
 }
 
@@ -56,6 +57,15 @@ void invertedIndex(){
     comando += " -o" + dotenv::getenv("pathSalida");
     comando += " -m" + dotenv::getenv("mapa_archivos");
     comando += " -x" + dotenv::getenv("inverted_index");
+    system(comando.c_str());
+}
+
+void planificador(){
+    dotenv::init();
+    string comando = dotenv::getenv("pathPlanificador");
+    comando += " -o" + dotenv::getenv("PROCESOS");
+    comando += " -c" + dotenv::getenv("CANTIDAD_CORES");
+    comando += " -r" + dotenv::getenv("RESULTADOS");
     system(comando.c_str());
 }
 
@@ -191,6 +201,10 @@ int main(int argc, char* argv[]){
                 break;
             case 11:
                 if(rol == 0) invertedIndex();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
+            case 12:
+                if (rol == 0) planificador();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
             case 0:
