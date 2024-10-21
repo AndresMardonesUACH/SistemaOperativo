@@ -4,7 +4,7 @@
 #include <fstream>
 #include "validaciones.h"
 #include <vector>
-#include <ctime>
+#include <chrono>
 using namespace std;
 
 void ejecutarRepeticion(const char * pathCPT, const char* extension, const char* entrada, const char* salida, const char* stop_words, const char* mapa_archivos, int thread, const char* datos, int repeticiones){
@@ -20,12 +20,12 @@ void ejecutarRepeticion(const char * pathCPT, const char* extension, const char*
         comando += " -t" + to_string(thread);
         comando += " > /dev/null 2>&1";     
 
-        clock_t begin = clock();
         cout << "Ejecutando conteo con " << thread << " threads, repetición: " << (i+1) << endl; 
+        auto start = chrono::high_resolution_clock::now();
         system(comando.c_str());
-        clock_t end = clock();
-        double tiempo = double(end - begin) / CLOCKS_PER_SEC;
-        archivo << tiempo;
+        auto end = chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end - start;
+        archivo << duration.count();
         if(i != repeticiones-1) archivo << ",";
     }
     archivo << endl;

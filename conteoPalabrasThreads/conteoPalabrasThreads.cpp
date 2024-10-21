@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "mapa_archivos.h"
+#include <ctime>
 #include "limpieza_archivo.h"
 using namespace std;
 
@@ -50,7 +51,8 @@ int main(int argc, char* argv[]) {
     }
 
     bool termino = false;  // Variable para indicar el éxito de la operación
-
+    
+    
     // Verificar que la configuración sea correcta
     if (verificar_configuracion(pathEntrada, pathSalida, mapa_archivos, cantidad_thread_str, extension, archivo_stop_words, cantidad_thread)) {
         // Escribir el archivo de mapeo
