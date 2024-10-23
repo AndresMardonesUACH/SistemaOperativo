@@ -10,7 +10,8 @@
 using namespace std;
 
 /**
- * Imprime las opciones de menu
+ * Imprime las opciones de menu según el rol del usuario
+ * @param rol: 0 para admin, otro valor para usuario genérico
  */
 void generaInterfaz(int rol){
     cout << "\nElija una Opción: " << endl;
@@ -21,43 +22,59 @@ void generaInterfaz(int rol){
     cout << "4. Promedio y sumatoria de un vector" << endl;
     cout << "5. Cálculo de f(x)" << endl;
     cout << "6. Conteo de palabras" << endl;
+    // Opciones adicionales solo visibles para el admin
     if(rol == 0){
         cout << "7. Ingresar Usuarios" << endl;
         cout << "8. Listar Usuarios" << endl;
         cout << "9. Eliminar Usuarios " << endl;
         cout << "10. Conteo Paralelo con Threads " << endl;
         cout << "11. Crear Índice Invertido" << endl;
+        cout << "12. Análisis de Performance" << endl;
         cout << "13. Planificador" << endl;
     }
 }
 
+/**
+ * Verifica si una cadena representa un número
+ * @param cadena: cadena a verificar
+ * @return true si es un número, false en caso contrario
+ */
 bool esNumero(string cadena){
     for(int i = 0; i < cadena.length(); i++){
-        if(!isdigit(cadena[i])) return false;
+        if(!isdigit(cadena[i])) return false; // Retorna false si encuentra un carácter no numérico
     }
-    return true;
+    return true; // Retorna true si todos los caracteres son dígitos
 }
 
+/**
+ * Ejecuta el conteo de palabras en paralelo utilizando hilos
+ */
 void conteoPalabrasThreads(){
-    dotenv::init();
-    string comando = dotenv::getenv("pathConteoPalabrasThreads");
+    dotenv::init(); // Inicializa dotenv para cargar variables de entorno
+    string comando = dotenv::getenv("pathConteoPalabrasThreads"); // Obtiene el path del programa
+    // Agrega argumentos al comando
     comando += " -e" + dotenv::getenv("extension");
     comando += " -i" + dotenv::getenv("pathEntrada");
     comando += " -o" + dotenv::getenv("pathSalida");
     comando += " -s" + dotenv::getenv("stop_word");
     comando += " -m" + dotenv::getenv("mapa_archivos");
-    system(comando.c_str());
+    comando += " -t" + dotenv::getenv("cantidad_thread");
+    system(comando.c_str()); // Ejecuta el comando en el sistema
 }
 
+/**
+ * Ejecuta el proceso de creación de índice invertido
+ */
 void invertedIndex(){
-    dotenv::init();
-    string comando = dotenv::getenv("pathInvertedIndex");
+    dotenv::init(); // Inicializa dotenv
+    string comando = dotenv::getenv("pathInvertedIndex"); // Obtiene el path del programa
+    // Agrega argumentos al comando
     comando += " -e" + dotenv::getenv("extension");
     comando += " -i" + dotenv::getenv("pathEntrada");
     comando += " -o" + dotenv::getenv("pathSalida");
     comando += " -m" + dotenv::getenv("mapa_archivos");
     comando += " -x" + dotenv::getenv("inverted_index");
-    system(comando.c_str());
+    system(comando.c_str()); // Ejecuta el comando en el sistema
 }
 
 void planificador(){
@@ -68,48 +85,71 @@ void planificador(){
     comando += " -r" + dotenv::getenv("RESULTADOS");
     system(comando.c_str());
 }
-
-void comunicarTermino(bool termino, const char* salida){
-    string nuevaRuta = string(salida) + "/cPTEjecutado.txt";
-    ofstream archivoTermino(nuevaRuta.c_str());
+/**
+ * Comunica el término de una operación mediante un archivo
+ * @param termino: true si la operación terminó, false en caso contrario
+ * @param salida: ruta del directorio de salida
+ */
+void comunicarTermino(bool termino, string salida){
+    string nuevaRuta = salida + "/cPTEjecutado.txt"; // Ruta del archivo
+    ofstream archivoTermino(nuevaRuta.c_str()); // Abre el archivo para escribir
     if(termino) archivoTermino << "true";
-    else archivoTermino << "false";
-    archivoTermino.close();
+    else archivoTermino << "false"; 
+    archivoTermino.close(); // Cierra el archivo
 }
+
+void analisisPerformance(){
+    dotenv::init(); // Inicializa dotenv
+    string comando = dotenv::getenv("ejecutador"); // Obtiene el path del programa
+    // Agrega argumentos al comando
+    comando += " -p" + dotenv::getenv("pathConteoPalabrasThreads");
+    comando += " -e" + dotenv::getenv("extension");
+    comando += " -i" + dotenv::getenv("pathEntrada");
+    comando += " -o" + dotenv::getenv("pathSalida");
+    comando += " -s" + dotenv::getenv("stop_word");
+    comando += " -m" + dotenv::getenv("mapa_archivos");
+    comando += " -t" + dotenv::getenv("array_threads");
+    comando += " -r" + dotenv::getenv("repeticiones");
+    comando += " -d" + dotenv::getenv("datos");
+    comando += " -g" + dotenv::getenv("grafico");
+    comando += " -a" + dotenv::getenv("analizador");
+    system(comando.c_str()); // Ejecuta el comando en el sistema
+}
+
 
 int main(int argc, char* argv[]){
     // Declaración de variables que albergarán los argumentos del programa
     int opt;
-    char* usuario = nullptr;
-    char* contrasena = nullptr;
-    char* texto = nullptr;
-    char* vector = nullptr;
-    char* numero = nullptr;
+    char* usuario = nullptr; // Almacena el usuario
+    char* contrasena = nullptr; // Almacena la contraseña
+    char* texto = nullptr; // Almacena el texto
+    char* vector = nullptr; // Almacena el vector
+    char* numero = nullptr; // Almacena un número
     
     // Se obtienen los argumentos del programa
     while ((opt = getopt(argc, argv, "u:p:t:v:n:")) != -1){
         switch (opt){
         case 'u':
-            usuario = optarg;
+            usuario = optarg; // Argumento de usuario
             break;
         case 'p':
-            contrasena = optarg;
+            contrasena = optarg; // Argumento de contraseña
             break;
         case 't':
-            texto = optarg;
+            texto = optarg; // Argumento de texto
             break;
         case 'v':
-            vector = optarg;
+            vector = optarg; // Argumento de vector
             break;
         case 'n':
-            numero = optarg;
+            numero = optarg; // Argumento de número
             break;
         default:
-            break;
+            break; // Ignorar opciones no reconocidas
         }
     }
 
-    // Se valida que todos los argumentos hayan sido ingresados
+    // Validación de los argumentos
     if(!usuario){
         cout << "ERROR. Debe ingresar usuario -u" << endl;
         exit(EXIT_FAILURE);
@@ -131,29 +171,27 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-    int rol = validaLogin(usuario, contrasena);
+    int rol = validaLogin(usuario, contrasena); // Valida el login y obtiene el rol del usuario
     if (rol == -1){
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE); // Termina el programa si el login falla
     }
 
-    // Se genera el menú y se pide el input de una opción
-    // Dependiendo de la opción ingresada, se ejecuta la función correspondiente
-    string opcion;
-    system("clear");
-    cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl;
-    cout << "Nombre de Usuario: " << usuario << endl;
-    if(rol == 0) cout << "Rol: Admin" << endl;
-    else cout << "Rol: Genérico" << endl;
+    // Generación del menú y gestión de la interacción del usuario
+    string opcion; // Variable para almacenar la opción elegida
+    system("clear"); // Limpia la pantalla
+    cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl; // Muestra el PID
+    cout << "Nombre de Usuario: " << usuario << endl; // Muestra el usuario
+    if(rol == 0) cout << "Rol: Admin" << endl; // Indica si el rol es admin
+    else cout << "Rol: Genérico" << endl; // Indica si el rol es genérico
 
     do{
-
-        generaInterfaz(rol);
-        
+        generaInterfaz(rol); // Muestra las opciones del menú
         cout << "Opción: ";
-        cin >> opcion;
+        cin >> opcion; // Lee la opción ingresada
 
+        // Si la opción es un número, se ejecuta la opción correspondiente
         if(esNumero(opcion)){
-            system("clear");
+            system("clear"); // Limpia la pantalla
             cout << "SISTEMA MENÚ (PID = " << getpid() << ")" << endl;
             cout << "Nombre de Usuario: " << usuario << endl;
             if(rol == 0) cout << "Rol: Admin" << endl;
@@ -203,6 +241,10 @@ int main(int argc, char* argv[]){
                 if(rol == 0) invertedIndex();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
+            case 12:
+                if (rol == 0) analisisPerformance();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
             case 13:
                 if (rol == 0) planificador();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
@@ -218,10 +260,13 @@ int main(int argc, char* argv[]){
         else{
             system("clear");
             cout << "--------------------------------------------------------------" << endl;
-            cout << "Debe ingresar un número, intente de nuevo" << endl;
+            cout << "La opción no es un número, intente de nuevo." << endl; // Mensaje de error
         }
         cout << "--------------------------------------------------------------" << endl;
-    } while (stoi(opcion) != 0);
+    } while (!esNumero(opcion) || stoi(opcion) != 0); // Continua hasta que el usuario elija salir
+
+    dotenv::init();
+    comunicarTermino(false, dotenv::getenv("pathSalida"));
 
     dotenv::init();
     comunicarTermino(false, dotenv::getenv("pathSalida").c_str());
