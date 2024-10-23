@@ -149,6 +149,7 @@ int main(int argc, char* argv[]) {
         cerr << "ERROR. Repeticiones debe ser un número entero" << endl;
         exit(EXIT_FAILURE);
     }
+
     vector<int> threads;
     if (!creaArrayThreads(threads, array_threads)){
         exit(EXIT_FAILURE);
@@ -165,13 +166,6 @@ int main(int argc, char* argv[]) {
     comando += " --grafico=" + string(grafico);
     system(comando.c_str());
     cout << "\033[32mAnálisis de Performance realizado correctamente." << endl << "Salida de gráfico en " << grafico << "\033[0m" << endl;
-
-    
-
-
-
-
-
 
     return 0;
 }

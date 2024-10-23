@@ -6,6 +6,8 @@ Este proyecto consta de un sistema que presenta un menú de opciones que además
 ## Requisitos
 * Sistema Operativo: Ubuntu 22.04
 * Compilador: g++ 11.4.0
+* Python 3.10 o superior
+* Pandas y Matplotlib
 
 ## Instalación / Compilación
 Para la compilación del programa basta con situarse en la carpeta raíz del proyecto y ejecutar en la terminal:
@@ -43,7 +45,13 @@ cantidad_thread = "[número]"
 mapa_archivos = "[ruta]"
 stop_word = "[ruta]"
 inverted_index = "[ruta]"
-pathInvertedIndex = "[ruta]" 
+pathInvertedIndex = "[ruta]"
+array_threads = "[números separados por ,]"
+repeticiones = "[número]"
+datos = "[ruta]"
+grafico = "[ruta]"
+ejecutador = "[ruta]"
+analizador = "[ruta]"
 ```
 Donde estas variables representan:
 
@@ -60,6 +68,12 @@ Donde estas variables representan:
 | stop_word | Ruta donde se encuentra el archivo ``stop_words.txt`` |
 | inverted_index | Ruta donde se generará el archivo ``inverted_index.INDEX`` |
 | pathInvertedIndex | Ruta donde se encuentra el programa ``invertedIndex`` |
+| array_threads | Números separados por coma que representan los threads que serán analizados en ``Análisis de Performance``|
+| repeticiones | Número que indica la cantidad de repeticiones por cada thread en ``Análisis de Performance`` |
+| datos | Ruta donde se encuentra el archivo ``datos.txt`` donde se guardarán las mediciones |
+| grafico | Ruta donde se encuentra el png ``grafico.png`` con el gráfico resultante |
+| ejecutador | Ruta donde se encuentra el programa ``ejecutador`` |
+| analizador | Ruta donde se encuentra el programa ``analizador`` (python que genera el gráfico) |
 
 ### Ejemplo de ejecución
 ```bash
@@ -86,6 +100,7 @@ Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas
 9. Eliminar Usuarios
 10. Conteo Paralelo con Threads
 11. Crear Índice Invertido
+12. Análisis de Performance
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
@@ -104,6 +119,7 @@ Las funciones que presenta el programa son:
 9. Eliminar usuarios. En esta opción se pide que se ingrese el nombre del usuario a eliminar (no es posible eliminar administradores).
 10. Conteo Paralelo con Threads. En esta opción se ejecuta el programa ``conteoPalabrasThreads`` (para más información consultar su propio readme.md)
 11. Crear Inverted Index. Se ejecuta el programa ``invertedIndex`` (para más información consultar su propio readme.md)
+12. Análisis de Performance. Se ejecuta el programa ``ejecutador`` (para más información consultar su propio readme.md)
 
 ## Autor y Créditos
 

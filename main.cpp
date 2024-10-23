@@ -105,8 +105,6 @@ void analisisPerformance(){
     comando += " -g" + dotenv::getenv("grafico");
     comando += " -a" + dotenv::getenv("analizador");
     system(comando.c_str()); // Ejecuta el comando en el sistema
-
-
 }
 
 

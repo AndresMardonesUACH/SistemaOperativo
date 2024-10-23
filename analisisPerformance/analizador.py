@@ -19,10 +19,6 @@ columnas.extend(columnasRep)
 
 df = pd.DataFrame(lista, columns = columnas)
 # Genera gráfico
-df.plot(x="Cant_Threads", y=columnasRep, kind="bar", xlabel="Cantidad de Threads", ylabel="Tiempo(s)", rot=0, title="Tiempos de ejecución de 'Conteo de Palabras Paralelo' según cantidad de threads utilizados", figsize=(12,8))
+df.sort_values(by=['Cant_Threads']).plot(x="Cant_Threads", y=columnasRep, kind="bar", xlabel="Cantidad de Threads", ylabel="Tiempo(seg)", rot=0, title="Tiempos de ejecución de 'Conteo de Palabras Paralelo' según cantidad de threads utilizados", figsize=(9+(len(lista)*.5),6+(len(lista)*.5)))
 #Guarda gráfico en el path correspondiente
 plt.savefig(args.grafico[0], format="png")
-
-
-
-
