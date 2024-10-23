@@ -5,34 +5,38 @@
 #include <vector>
 #include <filesystem>
 #include <sstream>
+#include "dotenv.h"
 using namespace std;
 
-void liberarCore(int* cores, int core){
-    cores[core] = 0;
-}
+string seleccionarCore() {
+    dotenv::init();
+    string ruta = dotenv::getenv("CORES");
 
-int seleccionarCore(int* cores, int cantidad_cores) {
-    for (int i = 0; i < cantidad_cores; i++) {
-        if (cores[i] == 0){
-            cores[i] = 1;
-            return i;
+    for (const auto& entry : filesystem::directory_iterator(ruta)) {
+        string archivoCore = entry.path().string();
+
+        ifstream archivo(archivoCore);
+
+        if (archivo.is_open()) {
+            char contenido;
+            archivo >> contenido;
+
+            if (contenido == '0') {
+                archivo.close();
+
+                ofstream archivoSalida(archivoCore);
+                archivoSalida << '1';
+                archivoSalida.close();
+
+                string nombreArchivo = entry.path().stem().string();
+                return nombreArchivo;
+            }
+
+            archivo.close();
         }
     }
-    return -1;
-}
 
-string core(string operacion, float x, float y) {
-    if (operacion == "suma") {
-        return to_string(x+y);
-    } else if (operacion == "resta") {
-        return to_string(x-y);
-    } else if (operacion == "division") {
-        if (y == 0) return "Error, no se puede dividir por 0.";
-        return to_string(x/y);
-    } else if (operacion == "multiplicacion") {
-        return to_string(x*y);
-    }
-    return "La operación no está definida.";
+    return "";
 }
 
 vector<string> leerOperaciones(const string& rutaOperaciones) {
@@ -54,37 +58,28 @@ vector<string> leerOperaciones(const string& rutaOperaciones) {
     return operaciones;
 }
 
-void distribuidor(string mensaje, int* cores, string pathrutaResultados) {
-    stringstream ss(mensaje);
-    string token;
-    int idCore, idOperacion;
-    string operacion;
-    float valor1, valor2;
+void iniciarCores(int cantidadCores) {
+    dotenv::init();
+    string ruta = dotenv::getenv("CORES");
 
-    getline(ss, token, ';');
-    stringstream tokenStream(token);
-    getline(tokenStream, token, ':');
-    idCore = stoi(token);
-    getline(tokenStream, token, ':');
-    idOperacion = stoi(token);
-
-    getline(ss, operacion, ';'); 
-
-    getline(ss, token, ',');
-    valor1 = stof(token);
-    getline(ss, token, ',');
-    valor2 = stof(token);
-
-    string resultado = core(operacion, valor1, valor2);
-    liberarCore(cores, idCore);
-
-    ofstream archivo(pathrutaResultados, ios::app); 
-    if (archivo.is_open()) {
-        archivo << "(" << mensaje << ") => " << resultado << endl;
-        archivo.close();
-    } else {
-        cerr << "No se pudo abrir el archivo." << endl;
+    for (const auto& entry : filesystem::directory_iterator(ruta)) {
+        filesystem::remove(entry.path());
     }
+
+    for (int i = 0; i < cantidadCores; ++i) {
+        string archivoCore = ruta + "/" + to_string(i) + ".txt";
+        ofstream archivo(archivoCore);
+        archivo << '0';
+        archivo.close();
+    }
+}
+
+void distribuir(string mensaje, string pathResultados){
+    dotenv::init();
+    string comando = dotenv::getenv("DISTRIBUIDOR");
+    comando += " -m \"" + mensaje + "\"";
+    comando += " -p \"" + pathResultados + "\"";
+    system(comando.c_str());
 }
 
 int main(int argc, char* argv[]){
@@ -132,32 +127,19 @@ int main(int argc, char* argv[]){
 
     vector<string> operaciones = leerOperaciones(rutaOperaciones);
 
-    int cantidad_cores = stoi(cantidadCoresStr);
-    int* cores = new int[cantidad_cores];
+    iniciarCores(stoi(cantidadCoresStr));
 
-    for (int i = 0; i < cantidad_cores; i++) {
-        cores[i] = 0;
-    }
-
-    int core;
-    string operacion;
+    string operacion, core;
 
     while (!operaciones.empty()) {
-        vector<string> llamadasAcumuladas;
+        do {
+            core = seleccionarCore(); 
+        } while (core != "");
 
-        int core = seleccionarCore(cores, cantidad_cores);
-        
-        while (core != -1 && !operaciones.empty()) {
-            string operacion = operaciones.back();
-            operaciones.pop_back();
-            llamadasAcumuladas.push_back(to_string(core) + ":" + operacion);
-            core = seleccionarCore(cores, cantidad_cores);
-        }
+        operacion = operaciones.back();
+        operaciones.pop_back();
 
-        // Ejecuta todas las llamadas acumuladas
-        for (const auto& llamada : llamadasAcumuladas) {
-            distribuidor(llamada, cores, rutaResultados);
-        }
+        distribuir(core + ":" + operacion, rutaResultados);
     }
 
     return 0;
