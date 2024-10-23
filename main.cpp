@@ -27,7 +27,7 @@ void generaInterfaz(int rol){
         cout << "9. Eliminar Usuarios " << endl;
         cout << "10. Conteo Paralelo con Threads " << endl;
         cout << "11. Crear Índice Invertido" << endl;
-        cout << "12. Planificador" << endl;
+        cout << "13. Planificador" << endl;
     }
 }
 
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
                 if(rol == 0) invertedIndex();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
-            case 12:
+            case 13:
                 if (rol == 0) planificador();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
