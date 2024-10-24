@@ -2,18 +2,19 @@
 #include <unistd.h>
 using namespace std;
 
-string core(string operacion, float x, float y) {
+void core(string operacion, float x, float y) {
     if (operacion == "suma") {
-        return to_string(x+y);
+        cout << (x+y);
     } else if (operacion == "resta") {
-        return to_string(x-y);
+        cout << (x-y);
     } else if (operacion == "division") {
-        if (y == 0) return "Error, no se puede dividir por 0.";
-        return to_string(x/y);
+        if (y == 0) cout << "Error, no se puede dividir por 0.";
+        cout << (x/y);
     } else if (operacion == "multiplicacion") {
-        return to_string(x*y);
+        cout << (x*y);
+    } else {
+        cout << "La operación no está definida.";
     }
-    return "La operación no está definida.";
 }
 
 int main(int argc, char* argv[]){

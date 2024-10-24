@@ -7,24 +7,16 @@
 #include <chrono>
 using namespace std;
 
-void ejecutarRepeticion(const char * pathCPT, const char* extension, const char* entrada, const char* salida, const char* stop_words, const char* mapa_archivos, int thread, const char* datos, int repeticiones){
+void ejecutarRepeticion(string comando, int thread, const char* datos, int repeticiones){
     ofstream archivo(datos, ios::app);
     archivo << thread << ",";
-    for(int i = 0; i < repeticiones; i++){
-        string comando = pathCPT;
-        comando += " -e" + string(extension);
-        comando += " -i" + string(entrada);
-        comando += " -o" + string(salida);
-        comando += " -s" + string(stop_words);
-        comando += " -m" + string(mapa_archivos);
-        comando += " -t" + to_string(thread);
-        comando += " > /dev/null 2>&1";     
-
+    
+    for(int i = 0; i < repeticiones; i++){    
         cout << "Ejecutando conteo con " << thread << " threads, repetición: " << (i+1) << endl; 
         auto start = chrono::high_resolution_clock::now();
         system(comando.c_str());
         auto end = chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = end - start;
+        chrono::duration<double> duration = end - start;
         archivo << duration.count();
         if(i != repeticiones-1) archivo << ",";
     }
@@ -154,11 +146,22 @@ int main(int argc, char* argv[]) {
     if (!creaArrayThreads(threads, array_threads)){
         exit(EXIT_FAILURE);
     }
-    
+
+    string comando;
     ofstream archivo(datos);
     archivo.close();
+    
     for(int i = 0; i < threads.size(); i++){
-        ejecutarRepeticion(pathCPT, extension, entrada, salida, stop_words, mapa_archivos, threads[i], datos, stoi(repeticiones));  
+        comando = pathCPT;
+        comando += " -e" + string(extension);
+        comando += " -i" + string(entrada);
+        comando += " -o" + string(salida);
+        comando += " -s" + string(stop_words);
+        comando += " -m" + string(mapa_archivos);
+        comando += " -t" + to_string(threads[i]);
+        comando += " > /dev/null 2>&1";
+
+        ejecutarRepeticion(comando, threads[i], datos, stoi(repeticiones));  
     }
 
     string comando = "python3 " + string(analizador);

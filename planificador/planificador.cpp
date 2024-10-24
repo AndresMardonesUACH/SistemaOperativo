@@ -58,13 +58,20 @@ vector<string> leerOperaciones(const string& rutaOperaciones) {
     return operaciones;
 }
 
-void iniciarCores(int cantidadCores) {
+void limpiarCores(){
     dotenv::init();
     string ruta = dotenv::getenv("CORES");
 
     for (const auto& entry : filesystem::directory_iterator(ruta)) {
         filesystem::remove(entry.path());
     }
+}
+
+void iniciarCores(int cantidadCores) {
+    dotenv::init();
+    string ruta = dotenv::getenv("CORES");
+
+    limpiarCores();
 
     for (int i = 0; i < cantidadCores; ++i) {
         string archivoCore = ruta + "/" + to_string(i) + ".txt";
@@ -134,13 +141,15 @@ int main(int argc, char* argv[]){
     while (!operaciones.empty()) {
         do {
             core = seleccionarCore(); 
-        } while (core != "");
+        } while (core == "");
 
         operacion = operaciones.back();
         operaciones.pop_back();
-
+        
         distribuir(core + ":" + operacion, rutaResultados);
     }
+
+    limpiarCores();
 
     return 0;
 }

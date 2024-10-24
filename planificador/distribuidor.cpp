@@ -20,7 +20,7 @@ void liberarCore(string core) {
     }
 }
 
-int distribuir(string mensaje){
+string distribuir(string mensaje){
     stringstream ss(mensaje);
     string token;
     string idCore, idOperacion, operacion, valor1, valor2;
@@ -44,7 +44,19 @@ int distribuir(string mensaje){
     comando += " -o" + operacion;
     comando += " -p" + valor1;
     comando += " -s" + valor2;
-    int resultado = system(comando.c_str());
+
+    FILE* pipe = popen(comando.c_str(), "r");
+    if (!pipe) {
+        liberarCore(idCore);
+        return "Error al ejecutar el comando";
+    }
+
+    char buffer[128];
+    string resultado;
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        resultado += buffer;
+    }
+    pclose(pipe);
 
     liberarCore(idCore);
 
@@ -79,6 +91,6 @@ int main(int argc, char* argv[]){
         }
     }
 
-    int resultado = distribuir(mensaje);
-    comunicarResultado(pathrutaResultados, mensaje, to_string(resultado));
+    string resultado = distribuir(mensaje);
+    comunicarResultado(pathrutaResultados, mensaje, resultado);
 }
