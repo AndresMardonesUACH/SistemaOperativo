@@ -204,7 +204,7 @@ int main(int argc, char* argv[]){
     }
 
     cout << "\033[32mPlanificador ejecutado correctamente." << endl << "Salida de resultados en " << rutaResultados << "\033[0m" << endl;
-    cout << "Presione ENTER para volver..." << endl;
+    cout << "Presione ENTER para volver...";
     cin.get();
     return EXIT_SUCCESS;
 }

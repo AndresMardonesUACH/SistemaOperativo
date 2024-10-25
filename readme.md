@@ -52,6 +52,13 @@ datos = "[ruta]"
 grafico = "[ruta]"
 ejecutador = "[ruta]"
 analizador = "[ruta]"
+pathPlanificador = "[ruta]"
+PROCESOS = "[ruta]"
+CANTIDAD_CORES = "[número]"
+RESULTADOS = "[ruta]"
+CORES = "[ruta]"
+CORE = "[ruta]"
+DISTRIBUIDOR = "[ruta]"
 ```
 Donde estas variables representan:
 
@@ -74,6 +81,13 @@ Donde estas variables representan:
 | grafico | Ruta donde se encuentra el png ``grafico.png`` con el gráfico resultante |
 | ejecutador | Ruta donde se encuentra el programa ``ejecutador`` |
 | analizador | Ruta donde se encuentra el programa ``analizador`` (python que genera el gráfico) |
+| pathPlanificador | Ruta donde se encuentra el programa ``planificador`` |
+| PROCESOS | Ruta donde se encuentra el archivo txt con los procesos |
+| CANTIDAD_CORES | Número que representa la cantidad de cores con los que se ejecutará ``planificador`` |
+| RESULTADOS | Ruta donde se generará el archivo ``resultados.txt`` con los resultados de las operaciones |
+| CORES | Ruta donde se encuentra la carpeta con archivos de comunicación entre distribuidor y planificador |
+| CORE | Ruta donde se encuentra el programa ``core`` |
+| DISTRIBUIDOR | Ruta donde se encuentra el programa ``distribuidor`` |
 
 ### Ejemplo de ejecución
 ```bash
@@ -101,6 +115,7 @@ Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas
 10. Conteo Paralelo con Threads
 11. Crear Índice Invertido
 12. Análisis de Performance
+13. Planificador
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
@@ -120,6 +135,7 @@ Las funciones que presenta el programa son:
 10. Conteo Paralelo con Threads. En esta opción se ejecuta el programa ``conteoPalabrasThreads`` (para más información consultar su propio readme.md)
 11. Crear Inverted Index. Se ejecuta el programa ``invertedIndex`` (para más información consultar su propio readme.md)
 12. Análisis de Performance. Se ejecuta el programa ``ejecutador`` (para más información consultar su propio readme.md)
+13. Planificador. Se ejecuta el programa ``planificador`` (para más información consultar su propio readme.md)
 
 ## Autor y Créditos
 

@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
     comando += " --grafico=" + string(grafico);
     system(comando.c_str());
     cout << "\033[32mAnálisis de Performance realizado correctamente." << endl << "Salida de gráfico en " << grafico << "\033[0m" << endl;
-    cout << "Presione ENTER para volver..." << endl;
+    cout << "Presione ENTER para volver...";
     cin.get();
     return 0;
 }
