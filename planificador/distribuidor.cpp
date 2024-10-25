@@ -2,24 +2,32 @@
 #include <filesystem>
 #include <fstream>
 #include <unistd.h>
-#include "dotenv.h"
 using namespace std;
 
-void verificarParametros(const string& mensaje, const string& pathrutaResultados) {
+void verificarParametros(const string& mensaje, const string& rutaResultados, const string& rutaCore, const string& rutaCores) {
     if (mensaje.empty()) {
         cerr << "Error: El mensaje no ha sido ingresado." << endl;
         exit(EXIT_FAILURE);
     }
 
-    if (pathrutaResultados.empty()) {
+    if (rutaResultados.empty()) {
         cerr << "Error: El path de resultados no ha sido ingresado." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (rutaCore.empty()) {
+        cerr << "Error: El path de core no ha sido ingresado." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (rutaCores.empty()) {
+        cerr << "Error: El path de cores no ha sido ingresado." << endl;
         exit(EXIT_FAILURE);
     }
 }
 
-void liberarCore(string core) {
-    dotenv::init();
-    string archivoCore = dotenv::getenv("CORES") + "/" + core + ".txt";
+void liberarCore(string core, string rutaCores) {
+    string archivoCore = rutaCores + "/" + core + ".txt";
 
     ofstream archivo(archivoCore, ios::trunc);
 
@@ -31,7 +39,7 @@ void liberarCore(string core) {
     }
 }
 
-string distribuir(string mensaje){
+string distribuir(string mensaje, string rutaCore, string rutaCores){
     stringstream ss(mensaje);
     string idCore, idOperacion, operacion, valor1, valor2;
 
@@ -50,15 +58,14 @@ string distribuir(string mensaje){
         exit(EXIT_FAILURE);
     }
     
-    dotenv::init();
-    string comando = dotenv::getenv("CORE");
+    string comando = rutaCore;
     comando += " -o" + operacion;
     comando += " -p" + valor1;
     comando += " -s" + valor2;
 
     FILE* pipe = popen(comando.c_str(), "r");
     if (!pipe) {
-        liberarCore(idCore);
+        liberarCore(idCore, rutaCores);
         return "Error al ejecutar el comando";
     }
 
@@ -69,7 +76,7 @@ string distribuir(string mensaje){
     }
 
     pclose(pipe);
-    liberarCore(idCore);
+    liberarCore(idCore, rutaCores);
 
     if (!resultado.empty()) {
         return resultado;
@@ -92,23 +99,32 @@ void comunicarResultado(string pathrutaResultados, string mensaje, string result
 int main(int argc, char* argv[]){
     int opt;
     char* mensaje = nullptr;
-    char* pathrutaResultados = nullptr;
+    char* rutaResultados = nullptr;
+    char* rutaCore = nullptr;
+    char* rutaCores = nullptr;
 
-    while ((opt = getopt(argc, argv, "m:p:")) != -1){
+    while ((opt = getopt(argc, argv, "m:p:c:s:")) != -1){
         switch (opt){
         case 'm':
             mensaje = optarg;
             break;
         case 'p':
-            pathrutaResultados = optarg;
+            rutaResultados = optarg;
+            break;
+        case 'c':
+            rutaCore = optarg;
+            break;
+        case 's':
+            rutaCores = optarg;
             break;
         default:
             break;
         }
     }
 
-    verificarParametros(mensaje, pathrutaResultados);
+    verificarParametros(mensaje, rutaResultados, rutaCore, rutaCores);
 
-    string resultado = distribuir(mensaje);
-    comunicarResultado(pathrutaResultados, mensaje, resultado);
+    string resultado = distribuir(mensaje, rutaCore, rutaCores);
+
+    comunicarResultado(rutaResultados, mensaje, resultado);
 }

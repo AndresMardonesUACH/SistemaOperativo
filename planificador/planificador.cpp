@@ -6,20 +6,27 @@
 #include <vector>
 #include <sstream>
 #include <sys/wait.h>
-#include "dotenv.h"
 using namespace std;
 
-void verificarParametros(char* rutaProcesos, char* cantidadCoresStr, char* rutaResultados) {
+void verificarParametros(char* rutaProcesos, char* cantidadCoresStr, char* rutaResultados, char* rutaCore, char* rutaDistribuidor) {
     if (!rutaProcesos) {
         cout << "ERROR. Debe ingresar path de procesos -o" << endl;
         exit(EXIT_FAILURE);
     }
     if (!cantidadCoresStr) {
-        cout << "ERROR. Debe ingresar cantidad de cores -c" << endl;
+        cout << "ERROR. Debe ingresar cantidad de cores -n" << endl;
         exit(EXIT_FAILURE);
     }
     if (!rutaResultados) {
         cout << "ERROR. Debe ingresar path de resultados -r" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (!rutaCore) {
+        cout << "ERROR. Debe ingresar path de cores -c" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (!rutaDistribuidor) {
+        cout << "ERROR. Debe ingresar path de distribuidor -d" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -33,6 +40,16 @@ void verificarParametros(char* rutaProcesos, char* cantidadCoresStr, char* rutaR
         exit(EXIT_FAILURE);
     }
 
+    if (!filesystem::exists(rutaCore)) {
+        cout << "ERROR. El ejecutable de cores no existe." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (!filesystem::exists(rutaDistribuidor)) {
+        cout << "ERROR. El ejecutable de distribuidor no existe." << endl;
+        exit(EXIT_FAILURE);
+    }
+
     int cantidadCores = stoi(cantidadCoresStr);
     if (cantidadCores <= 0) {
         cout << "ERROR. La cantidad de cores debe ser mayor a 0." << endl;
@@ -40,11 +57,8 @@ void verificarParametros(char* rutaProcesos, char* cantidadCoresStr, char* rutaR
     }
 }
 
-string seleccionarCore() {
-    dotenv::init();
-    string ruta = dotenv::getenv("CORES");
-
-    for (const auto& entry : filesystem::directory_iterator(ruta)) {
+string seleccionarCore(string rutaCores) {
+    for (const auto& entry : filesystem::directory_iterator(rutaCores)) {
         string archivoCore = entry.path().string();
 
         ifstream archivo(archivoCore);
@@ -90,34 +104,29 @@ vector<string> leerProcesos(const string& rutaProcesos) {
     return procesos;
 }
 
-void limpiarCores(){
-    dotenv::init();
-    string ruta = dotenv::getenv("CORES");
-
-    for (const auto& entry : filesystem::directory_iterator(ruta)) {
+void limpiarCores(string rutaCores){
+    for (const auto& entry : filesystem::directory_iterator(rutaCores)) {
         filesystem::remove(entry.path());
     }
 }
 
-void iniciarCores(int cantidadCores) {
-    dotenv::init();
-    string ruta = dotenv::getenv("CORES");
-
-    limpiarCores();
+void iniciarCores(int cantidadCores, string rutaCores) {
+    limpiarCores(rutaCores);
 
     for (int i = 0; i < cantidadCores; ++i) {
-        string archivoCore = ruta + "/" + to_string(i) + ".txt";
+        string archivoCore = rutaCores + "/" + to_string(i) + ".txt";
         ofstream archivo(archivoCore);
         archivo << '0';
         archivo.close();
     }
 }
 
-void distribuir(string mensaje, string pathResultados){
-    dotenv::init();
-    string comando = dotenv::getenv("DISTRIBUIDOR");
+void distribuir(string mensaje, string pathResultados, string rutaDistribuidor, string rutaCore, string rutaCores){
+    string comando = rutaDistribuidor;
     comando += " -m \"" + mensaje + "\"";
     comando += " -p \"" + pathResultados + "\"";
+    comando += " -c \"" + rutaCore + "\"";
+    comando += " -s \"" + rutaCores + "\"";
     system(comando.c_str());
 }
 
@@ -126,30 +135,42 @@ int main(int argc, char* argv[]){
     char* rutaProcesos = nullptr;
     char* cantidadCoresStr = nullptr;
     char* rutaResultados = nullptr;
+    char* rutaCore = nullptr;
+    char* rutaCores = nullptr;
+    char* rutaDistribuidor = nullptr;
 
-    while ((opt = getopt(argc, argv, "o:c:r:")) != -1){
+    while ((opt = getopt(argc, argv, "o:n:r:c:d:s:")) != -1){
         switch (opt){
         case 'o':
             rutaProcesos = optarg;
             break;
-        case 'c':
+        case 'n':
             cantidadCoresStr = optarg;
             break;
         case 'r':
             rutaResultados = optarg;
+            break;
+        case 'c':
+            rutaCore = optarg;
+            break;
+        case 'd':
+            rutaDistribuidor = optarg;
+            break;
+        case 's':
+            rutaCores = optarg;
             break;
         default:
             break;
         }
     }
 
-    verificarParametros(rutaProcesos, cantidadCoresStr, rutaResultados);
+    verificarParametros(rutaProcesos, cantidadCoresStr, rutaResultados, rutaCore, rutaDistribuidor);
 
     ofstream archivo(rutaResultados, ios::trunc);
 
     vector<string> procesos = leerProcesos(rutaProcesos);
 
-    iniciarCores(stoi(cantidadCoresStr));
+    iniciarCores(stoi(cantidadCoresStr), rutaCores);
 
     string operacion, core;
     pid_t pid;
@@ -160,7 +181,7 @@ int main(int argc, char* argv[]){
 
     while (!procesos.empty()) {
         do {
-            core = seleccionarCore(); 
+            core = seleccionarCore(rutaCores); 
         } while (core == "");
 
         operacion = procesos.back();
@@ -170,7 +191,7 @@ int main(int argc, char* argv[]){
         hijos++;
         
         if (pid == 0) {
-            distribuir(core + ":" + operacion, rutaResultados);
+            distribuir(core + ":" + operacion, rutaResultados, rutaDistribuidor, rutaCore, rutaCores);
             return EXIT_SUCCESS;
         }        
     }
@@ -179,7 +200,7 @@ int main(int argc, char* argv[]){
         for (int i = 0; i < hijos; i++){
             wait(NULL);
         }
-        limpiarCores();
+        limpiarCores(rutaCores);
     }
 
     cout << "\033[32mPlanificador ejecutado correctamente." << endl << "Salida de resultados en " << rutaResultados << "\033[0m" << endl;

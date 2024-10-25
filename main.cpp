@@ -81,8 +81,11 @@ void planificador(){
     dotenv::init();
     string comando = dotenv::getenv("pathPlanificador");
     comando += " -o" + dotenv::getenv("PROCESOS");
-    comando += " -c" + dotenv::getenv("CANTIDAD_CORES");
+    comando += " -n" + dotenv::getenv("CANTIDAD_CORES");
     comando += " -r" + dotenv::getenv("RESULTADOS");
+    comando += " -c" + dotenv::getenv("CORE");
+    comando += " -d" + dotenv::getenv("DISTRIBUIDOR");
+    comando += " -s" + dotenv::getenv("CORES");
     system(comando.c_str());
 }
 /**

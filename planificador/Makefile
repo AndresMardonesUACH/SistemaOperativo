@@ -1,10 +1,10 @@
 all: planificador core distribuidor
 
 planificador: planificador.cpp
-	g++ -I include -o planificador planificador.cpp 
+	g++ -o planificador planificador.cpp 
 
 core: core.cpp
-	g++ -I include -o core core.cpp 
+	g++ -o core core.cpp 
 
 distribuidor: distribuidor.cpp
-	g++ -I include -o distribuidor distribuidor.cpp 
+	g++ -o distribuidor distribuidor.cpp 
