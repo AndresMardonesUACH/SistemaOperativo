@@ -5,9 +5,20 @@
 #include "dotenv.h"
 using namespace std;
 
+void verificarParametros(const string& mensaje, const string& pathrutaResultados) {
+    if (mensaje.empty()) {
+        cerr << "Error: El mensaje no ha sido ingresado." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (pathrutaResultados.empty()) {
+        cerr << "Error: El path de resultados no ha sido ingresado." << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 void liberarCore(string core) {
     dotenv::init();
-
     string archivoCore = dotenv::getenv("CORES") + "/" + core + ".txt";
 
     ofstream archivo(archivoCore, ios::trunc);
@@ -22,23 +33,23 @@ void liberarCore(string core) {
 
 string distribuir(string mensaje){
     stringstream ss(mensaje);
-    string token;
     string idCore, idOperacion, operacion, valor1, valor2;
 
-    getline(ss, token, ';');
-    stringstream tokenStream(token);
-    getline(tokenStream, token, ':');
-    idCore = token;
-    getline(tokenStream, token, ':');
-    idOperacion = token;
+    getline(ss, idCore, ':');
+    getline(ss, idOperacion, ';');
+    getline(ss, operacion, ';');
+    getline(ss, valor1, ',');
+    getline(ss, valor2, ',');
 
-    getline(ss, operacion, ';'); 
-
-    getline(ss, token, ',');
-    valor1 = token;
-    getline(ss, token, ',');
-    valor2 = token;
-
+    if (idCore.empty()) {
+        cerr << "Error: id del core no identificado." << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (idOperacion.empty()) {
+        cerr << "Error: id de la operación no identificada." << endl;
+        exit(EXIT_FAILURE);
+    }
+    
     dotenv::init();
     string comando = dotenv::getenv("CORE");
     comando += " -o" + operacion;
@@ -51,20 +62,25 @@ string distribuir(string mensaje){
         return "Error al ejecutar el comando";
     }
 
-    char buffer[128];
     string resultado;
-    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-        resultado += buffer;
+    char buffer[128];
+    if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        resultado = buffer;
     }
-    pclose(pipe);
 
+    pclose(pipe);
     liberarCore(idCore);
 
-    return resultado;
+    if (!resultado.empty()) {
+        return resultado;
+    } else {
+        return "Error al leer el resultado del comando";
+    }
 }
 
 void comunicarResultado(string pathrutaResultados, string mensaje, string resultado){
-    ofstream archivo(pathrutaResultados, ios::app); 
+    ofstream archivo(pathrutaResultados, ios::app);
+
     if (archivo.is_open()) {
         archivo << "(" << mensaje << ") => " << resultado << endl;
         archivo.close();
@@ -90,6 +106,8 @@ int main(int argc, char* argv[]){
             break;
         }
     }
+
+    verificarParametros(mensaje, pathrutaResultados);
 
     string resultado = distribuir(mensaje);
     comunicarResultado(pathrutaResultados, mensaje, resultado);

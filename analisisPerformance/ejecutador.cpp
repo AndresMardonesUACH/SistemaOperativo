@@ -164,11 +164,12 @@ int main(int argc, char* argv[]) {
         ejecutarRepeticion(comando, threads[i], datos, stoi(repeticiones));  
     }
 
-    string comando = "python3 " + string(analizador);
+    comando = "python3 " + string(analizador);
     comando += " --datos=" + string(datos);
     comando += " --grafico=" + string(grafico);
     system(comando.c_str());
     cout << "\033[32mAnálisis de Performance realizado correctamente." << endl << "Salida de gráfico en " << grafico << "\033[0m" << endl;
-
+    cout << "Presione ENTER para volver..." << endl;
+    cin.get();
     return 0;
 }

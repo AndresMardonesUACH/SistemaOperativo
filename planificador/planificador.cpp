@@ -1,12 +1,44 @@
-#include <iostream>
-#include <unistd.h>
-#include <fstream>
-#include <string.h>
-#include <vector>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <string.h>
+#include <unistd.h>
+#include <vector>
 #include <sstream>
+#include <sys/wait.h>
 #include "dotenv.h"
 using namespace std;
+
+void verificarParametros(char* rutaProcesos, char* cantidadCoresStr, char* rutaResultados) {
+    if (!rutaProcesos) {
+        cout << "ERROR. Debe ingresar path de procesos -o" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (!cantidadCoresStr) {
+        cout << "ERROR. Debe ingresar cantidad de cores -c" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (!rutaResultados) {
+        cout << "ERROR. Debe ingresar path de resultados -r" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (!filesystem::exists(rutaProcesos)) {
+        cout << "ERROR. El archivo de procesos no existe." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (!filesystem::exists(rutaResultados)) {
+        cout << "ERROR. El archivo de resultados no existe." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    int cantidadCores = stoi(cantidadCoresStr);
+    if (cantidadCores <= 0) {
+        cout << "ERROR. La cantidad de cores debe ser mayor a 0." << endl;
+        exit(EXIT_FAILURE);
+    }
+}
 
 string seleccionarCore() {
     dotenv::init();
@@ -39,23 +71,23 @@ string seleccionarCore() {
     return "";
 }
 
-vector<string> leerOperaciones(const string& rutaOperaciones) {
-    ifstream archivo(rutaOperaciones);
+vector<string> leerProcesos(const string& rutaProcesos) {
+    ifstream archivo(rutaProcesos);
 
     if (!archivo.is_open()) {
-        cerr << "Error al abrir el archivo: " << rutaOperaciones << endl;
+        cerr << "Error al abrir el archivo: " << rutaProcesos << endl;
         return {};
     }
 
     string linea;
-    vector<string> operaciones;
+    vector<string> procesos;
 
     while (getline(archivo, linea)) {
-        operaciones.push_back(linea);
+        procesos.push_back(linea);
     }
 
     archivo.close();
-    return operaciones;
+    return procesos;
 }
 
 void limpiarCores(){
@@ -91,14 +123,14 @@ void distribuir(string mensaje, string pathResultados){
 
 int main(int argc, char* argv[]){
     int opt;
-    char* rutaOperaciones = nullptr;
+    char* rutaProcesos = nullptr;
     char* cantidadCoresStr = nullptr;
     char* rutaResultados = nullptr;
 
     while ((opt = getopt(argc, argv, "o:c:r:")) != -1){
         switch (opt){
         case 'o':
-            rutaOperaciones = optarg;
+            rutaProcesos = optarg;
             break;
         case 'c':
             cantidadCoresStr = optarg;
@@ -111,45 +143,47 @@ int main(int argc, char* argv[]){
         }
     }
 
-    // Se valida que todos los argumentos hayan sido ingresados
-    if(!rutaOperaciones){
-        cout << "ERROR. Debe ingresar path de procesos -p" << endl;
-        exit(EXIT_FAILURE);
-    }
-    if(!cantidadCoresStr){
-        cout << "ERROR. Debe ingresar path de entrada -c" << endl;
-        exit(EXIT_FAILURE);
-    }
-    if(!rutaResultados){
-        cout << "ERROR. Debe ingresar path de resultados -r" << endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if(!filesystem::exists(rutaOperaciones)) {
-        cout << "ERROR. El archivo de operaciones no existe." << endl;
-        exit(EXIT_FAILURE);
-    }
+    verificarParametros(rutaProcesos, cantidadCoresStr, rutaResultados);
 
     ofstream archivo(rutaResultados, ios::trunc);
 
-    vector<string> operaciones = leerOperaciones(rutaOperaciones);
+    vector<string> procesos = leerProcesos(rutaProcesos);
 
     iniciarCores(stoi(cantidadCoresStr));
 
     string operacion, core;
+    pid_t pid;
+    bool mardones = true;
+    int hijos = 0;
 
-    while (!operaciones.empty()) {
+    cout << "Procesando..." << endl;
+
+    while (!procesos.empty()) {
         do {
             core = seleccionarCore(); 
         } while (core == "");
 
-        operacion = operaciones.back();
-        operaciones.pop_back();
+        operacion = procesos.back();
+        procesos.pop_back();
+
+        pid = fork();
+        hijos++;
         
-        distribuir(core + ":" + operacion, rutaResultados);
+        if (pid == 0) {
+            distribuir(core + ":" + operacion, rutaResultados);
+            return EXIT_SUCCESS;
+        }        
     }
 
-    limpiarCores();
+    if (pid != 0){
+        for (int i = 0; i < hijos; i++){
+            wait(NULL);
+        }
+        limpiarCores();
+    }
 
-    return 0;
+    cout << "\033[32mPlanificador ejecutado correctamente." << endl << "Salida de resultados en " << rutaResultados << "\033[0m" << endl;
+    cout << "Presione ENTER para volver..." << endl;
+    cin.get();
+    return EXIT_SUCCESS;
 }
