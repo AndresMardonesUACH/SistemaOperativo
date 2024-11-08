@@ -59,6 +59,14 @@ RESULTADOS = "[ruta]"
 CORES = "[ruta]"
 CORE = "[ruta]"
 DISTRIBUIDOR = "[ruta]"
+pathBuscador = "[ruta]"
+pathMotorDeBusqueda = "[ruta]"
+pathCache = "[ruta]"
+topK = "[número]"
+MEMORY_SIZE = "[número]"
+portCache = "[port]"
+portMotorDeBusqueda = "[port]"
+ipServer = "[ip]"
 ```
 Donde estas variables representan:
 
@@ -88,6 +96,15 @@ Donde estas variables representan:
 | CORES | Ruta donde se encuentra la carpeta con archivos de comunicación entre distribuidor y planificador |
 | CORE | Ruta donde se encuentra el programa ``core`` |
 | DISTRIBUIDOR | Ruta donde se encuentra el programa ``distribuidor`` |
+| pathBuscador | Ruta donde se encuentra el programa ``buscador`` |
+| pathMotorDeBusqueda | Ruta donde se encuentra el programa ``motorDeBusqueda`` |
+| pathCache | Ruta donde se encuentra el programa ``cache`` |
+| topK | Número que indica máximo número de respuestas que se obtendrán en las búsquedas |
+| MEMORY_SIZE | Número que indica máximo número de respuestas que se guardarán en la caché |
+| portCache | Número que indica puerto de la caché |
+| portMotorDeBusqueda | Número que indica puerto del motor de búsqueda |
+| ipServer | Ip del servidor |
+
 
 ### Ejemplo de ejecución
 ```bash
@@ -116,6 +133,7 @@ Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas
 11. Crear Índice Invertido
 12. Análisis de Performance
 13. Planificador
+20. Buscador
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
@@ -136,6 +154,7 @@ Las funciones que presenta el programa son:
 11. Crear Inverted Index. Se ejecuta el programa ``invertedIndex`` (para más información consultar su propio readme.md)
 12. Análisis de Performance. Se ejecuta el programa ``ejecutador`` (para más información consultar su propio readme.md)
 13. Planificador. Se ejecuta el programa ``planificador`` (para más información consultar su propio readme.md)
+20. Buscador. Se ejecuta el programa ``buscador`` (para más información consultar su propio readme.md)
 
 ## Autor y Créditos
 

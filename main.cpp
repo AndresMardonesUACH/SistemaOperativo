@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
+#include <filesystem>
+#include <thread>
 #include "dotenv.h"
 #include "funcionesTexto.h"
 #include "funcionesMat.h"
@@ -31,6 +33,7 @@ void generaInterfaz(int rol){
         cout << "11. Crear Índice Invertido" << endl;
         cout << "12. Análisis de Performance" << endl;
         cout << "13. Planificador" << endl;
+        cout << "20. Buscador" << endl;
     }
 }
 
@@ -93,8 +96,8 @@ void planificador(){
  * @param termino: true si la operación terminó, false en caso contrario
  * @param salida: ruta del directorio de salida
  */
-void comunicarTermino(bool termino, string salida){
-    string nuevaRuta = salida + "/cPTEjecutado.txt"; // Ruta del archivo
+void comunicarTermino(bool termino, string salida, string proceso){
+    string nuevaRuta = salida + proceso; // Ruta del archivo
     ofstream archivoTermino(nuevaRuta.c_str()); // Abre el archivo para escribir
     if(termino) archivoTermino << "true";
     else archivoTermino << "false"; 
@@ -117,6 +120,39 @@ void analisisPerformance(){
     comando += " -g" + dotenv::getenv("grafico");
     comando += " -a" + dotenv::getenv("analizador");
     system(comando.c_str()); // Ejecuta el comando en el sistema
+}
+
+void buscador(){
+    dotenv::init();
+    string comando = dotenv::getenv("pathBuscador");
+    comando += " -p" + dotenv::getenv("portCache");
+    comando += " -i" + dotenv::getenv("ipServer");
+    comando += " -x" + dotenv::getenv("inverted_index");
+    comando += " -m" + dotenv::getenv("mapa_archivos");
+    system(comando.c_str()); // Ejecuta el comando en el sistema
+}
+
+void iniciarMotor() {
+    dotenv::init();
+    string comando = dotenv::getenv("pathMotorDeBusqueda"); // Obtiene el path del programa
+    comando += " -p" + dotenv::getenv("portMotorDeBusqueda");
+    comando += " -t" + dotenv::getenv("topK");
+    comando += " -x" + dotenv::getenv("inverted_index");
+    comando += " > /dev/null 2>&1";
+    system(comando.c_str()); // Ejecuta el comando en el sistema
+}
+
+void iniciarCache () {
+    dotenv::init();
+    string comando = dotenv::getenv("pathCache"); // Obtiene el path del programa
+    // Agrega argumentos al comando
+    comando += " -b" + dotenv::getenv("portMotorDeBusqueda");
+    comando += " -c" + dotenv::getenv("portCache");
+    comando += " -i" + dotenv::getenv("ipServer");
+    comando += " -t" + dotenv::getenv("MEMORY_SIZE");
+    comando += " > /dev/null 2>&1";
+    system(comando.c_str()); // Ejecuta el comando en el sistema
+
 }
 
 
@@ -178,6 +214,15 @@ int main(int argc, char* argv[]){
     if (rol == -1){
         exit(EXIT_FAILURE); // Termina el programa si el login falla
     }
+
+    thread thread1(iniciarMotor);
+
+    // Espera un tiempo antes de iniciar el segundo thread
+    this_thread::sleep_for(chrono::seconds(2)); // 2 segundos de retardo
+
+    // Inicia el segundo thread después del retardo
+    thread thread2(iniciarCache);
+
 
     // Generación del menú y gestión de la interacción del usuario
     string opcion; // Variable para almacenar la opción elegida
@@ -252,6 +297,10 @@ int main(int argc, char* argv[]){
                 if (rol == 0) planificador();
                 else cout << "Opción Invalida, intente de nuevo" << endl;
                 break;
+            case 20:
+                if (rol == 0) buscador();
+                else cout << "Opción Invalida, intente de nuevo" << endl;
+                break;
             case 0:
                 cout << "Ha salido del programa exitosamente" << endl;
                 break;
@@ -269,10 +318,12 @@ int main(int argc, char* argv[]){
     } while (!esNumero(opcion) || stoi(opcion) != 0); // Continua hasta que el usuario elija salir
 
     dotenv::init();
-    comunicarTermino(false, dotenv::getenv("pathSalida"));
+    comunicarTermino(false, dotenv::getenv("pathSalida"), "/cPTEjecutado.txt");
 
     dotenv::init();
-    comunicarTermino(false, dotenv::getenv("pathSalida").c_str());
+    filesystem::path rutaCompleta(dotenv::getenv("inverted_index"));
+    string rutaDatos = rutaCompleta.parent_path();
+    comunicarTermino(false, rutaDatos, "/invertedIndexEjecutado.txt");
     
     exit(EXIT_SUCCESS);
 }

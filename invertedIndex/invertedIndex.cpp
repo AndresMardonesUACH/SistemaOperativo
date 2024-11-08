@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fstream>
+#include <filesystem>
 #include "include/crearInvertedIndex.h"
 using namespace std;
 
@@ -17,6 +18,14 @@ bool cPTEjecutado(const char* salida) {
     string linea;
     archivoTermino >> linea;
     return (linea == "true");
+}
+
+// Función para comunicar el término de la ejecución escribiendo un archivo indicador
+void comunicarTermino(bool termino, string ruta) {
+    string nuevaRuta = ruta + "/invertedIndexEjecutado.txt";
+    ofstream archivoTermino(nuevaRuta.c_str());
+    archivoTermino << (termino ? "true" : "false");
+    archivoTermino.close();
 }
 
 int main(int argc, char* argv[]) {
@@ -81,6 +90,10 @@ int main(int argc, char* argv[]) {
         cerr << "ERROR. Fallo al crear el índice invertido." << endl;
         exit(EXIT_FAILURE);
     }
+
+    filesystem::path rutaCompleta(inverted_index);
+        string rutaDatos = rutaCompleta.parent_path();
+        comunicarTermino(true, rutaDatos);
 
     return 0;
 }
