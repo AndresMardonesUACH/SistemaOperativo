@@ -133,7 +133,7 @@ Si el usuario que ha ingresado es administrador, se ofrecen adicionalmente estas
 11. Crear Índice Invertido
 12. Análisis de Performance
 13. Planificador
-20. Buscador
+14. Buscador
 ```
 Cuando ingrese una opción válida, se ejecutará el procedimiento según corresponda.
 
@@ -154,7 +154,7 @@ Las funciones que presenta el programa son:
 11. Crear Inverted Index. Se ejecuta el programa ``invertedIndex`` (para más información consultar su propio readme.md)
 12. Análisis de Performance. Se ejecuta el programa ``ejecutador`` (para más información consultar su propio readme.md)
 13. Planificador. Se ejecuta el programa ``planificador`` (para más información consultar su propio readme.md)
-20. Buscador. Se ejecuta el programa ``buscador`` (para más información consultar su propio readme.md)
+14. Buscador. Se ejecuta el programa ``buscador`` (para más información consultar su propio readme.md)
 
 ## Autor y Créditos
 
